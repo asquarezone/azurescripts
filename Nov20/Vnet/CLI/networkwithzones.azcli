@@ -1,0 +1,15 @@
+# create a resource group
+az group create --location 'centralus' --name 'ntier-withzones'
+
+# create a virtual network
+az network vnet create --name 'ntierz' --location 'centralus' --resource-group 'ntier-withzones' --address-prefixes '172.16.0.0/16' --subnet-name 'web' --subnet-prefixes '172.16.0.0/24'
+
+# create a app subnet
+az network vnet subnet create --address-prefixes '172.16.1.0/24' --name 'app' --resource-group 'ntier-withzones' --vnet-name 'ntierz'
+
+# create a db subnet 
+az network vnet subnet create --address-prefixes '172.16.2.0/24' --name 'db' --resource-group 'ntier-withzones' --vnet-name 'ntierz'
+
+# create a mgmt subnet
+az network vnet subnet create --address-prefixes '172.16.3.0/24' --name 'mgmt' --resource-group 'ntier-withzones' --vnet-name 'ntierz'
+
