@@ -1,0 +1,14 @@
+# Lets create a resource group
+az group create --location "southindia" --name 'vnetwithoutzones-cli'
+
+# virtual network with one subnet
+az network vnet create --name 'ntier-cli' --resource-group 'vnetwithoutzones-cli' --location "southindia" --address-prefixes '10.10.0.0/16' --subnet-name 'web' --subnet-prefixes '10.10.0.0/24'
+
+# app subnet
+az network vnet subnet create --address-prefixes "10.10.1.0/24" --name 'app' --resource-group 'vnetwithoutzones-cli' --vnet-name 'ntier-cli'
+
+# db subnet
+az network vnet subnet create --address-prefixes "10.10.2.0/24" --name 'db' --resource-group 'vnetwithoutzones-cli' --vnet-name 'ntier-cli'
+
+# managment subnet
+az network vnet subnet create --address-prefixes "10.10.3.0/24" --name 'mgmt' --resource-group 'vnetwithoutzones-cli' --vnet-name 'ntier-cli'
