@@ -1,0 +1,4 @@
+# Create a resource group with name winvmdemo and location eastus
+az group create --location eastus --name 'winvmdemo'
+
+# Lets create a VM
