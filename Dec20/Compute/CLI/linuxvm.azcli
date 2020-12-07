@@ -1,0 +1,4 @@
+# Create a resource group
+az group create --name fromcli --location eastus
+# To creat e the vm 
+az vm create --name 'webvm' --resource-group 'fromcli' --admin-username 'qtdevops' --admin-password 'motherindia@123' --image 'UbuntuLTS'
