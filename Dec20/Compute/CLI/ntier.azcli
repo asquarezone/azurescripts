@@ -1,0 +1,14 @@
+# Create a resource group
+az group create --location 'eastus' --name 'ntier'
+
+# Create a virtual network with ip range 10.10.0.0/16 and three subnets
+# web 10.10.0.0/24
+# app 10.10.1.0/24
+# db 10.10.2.0/24
+
+az network vnet create --address-prefixes '10.10.0.0/16' --name 'ntier-vnet' --resource-group 'ntier' --subnet-name 'web-subnet' --subnet-prefixes '10.10.0.0/24'
+
+az network vnet subnet create -g 'ntier' --vnet-name 'ntier-vnet' -n 'app-subnet' --address-prefixes 10.10.1.0/24 
+
+az network vnet subnet create -g 'ntier' --vnet-name 'ntier-vnet' -n 'db-subnet' --address-prefixes 10.10.2.0/24 
+
