@@ -17,5 +17,14 @@ az network nsg create -g 'ntier' -n 'tomcat-nsg'
 
 az network nsg rule create -g 'ntier' --nsg-name 'tomcat-nsg' -n 'tomcatrule' --priority 900 --source-address-prefixes Internet --destination-port-ranges 8080 22 --access Allow --protocol Tcp --description "Allow Internet to all on ports 8080 && 22."
 
+# Create a virtual machine scaleset in the above created network 
+az vmss create --name 'appss' --resource-group 'ntier' --image 'UbuntuLTS' --admin-password 'motherindia@123' --admin-username 'qtdevops' --vnet-name 'ntier-vnet' --subnet 'app-subnet' --nsg 'tomcat-nsg' --authentication-type 'password' --instance-count '2' --vm-sku 'Standard_B1s'
+
+## To deploy the application lets run the shell script
+az vmss extension set --version 2.0 --publisher Microsoft.Azure.Extensions --name 'CustomScript' --resource-group 'ntier' --vmss-name 'appss' --settings '{"fileUris":["https://raw.githubusercontent.com/asquarezone/azurescripts/master/Dec20/Compute/CLI/installgol.sh"], "commandToExecute": "./installgol.sh"}'
+
+## add a rule to the load balancer
+az network lb rule create --resource-group 'ntier' --name 'applbrule' --lb-name 'appssLB' --backend-pool-name 'appssLBBEPool' --backend-port 8080 --frontend-port 80 --frontend-ip-name 'loadBalancerFrontEnd' --protocol tcp
+
 
 
