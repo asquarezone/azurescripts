@@ -5,4 +5,7 @@ az group create --location 'eastus' --name 'fromcli'
 # Create a storage account
 az storage account create --name qtstorageforcli --resource-group 'fromcli' --allow-blob-public-access true --kind StorageV2 --access-tier Hot --sku Standard_ZRS --location 'eastus'
 # Create a storage account container
-az storage container create --name videos --account-name 'qtstorageforcli'  --public-access blob
+az storage container create --name 'videos' --account-name 'qtstorageforcli'  --public-access blob
+# Upload some data into blob
+az storage blob upload --account-name 'qtstorageforcli' --container-name videos --name 'demo' --file .\demo.txt 
+az storage blob upload --account-name 'qtstorageforcli' --container-name videos --name 'authorization.mp4' --file ~/Desktop/authenticationandauthorization.mp4
