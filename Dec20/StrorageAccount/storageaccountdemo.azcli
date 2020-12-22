@@ -1,0 +1,4 @@
+# login if not logged in
+# az login
+# create a resource group
+az group create --location 'eastus' --name 'fromcli'
