@@ -2,3 +2,5 @@
 # az login
 # create a resource group
 az group create --location 'eastus' --name 'fromcli'
+# Create a storage account
+az storage account create --name qtstorageforcli --resource-group 'fromcli' --allow-blob-public-access true --kind StorageV2 --access-tier Hot --sku Standard_ZRS --location 'eastus'
