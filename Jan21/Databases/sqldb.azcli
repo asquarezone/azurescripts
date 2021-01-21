@@ -9,3 +9,6 @@ az sql db create --name 'qtsqldbfromcli' --resource-group 'sqlfromcli' --server 
 
 # Create a firewall rule to open all ip addresses
 az sql server firewall-rule create --start-ip-address 0.0.0.0 --end-ip-address 255.255.255.255 --name 'openall' --resource-group 'sqlfromcli' --server 'qtsqlserverfromcli'
+
+# Get Server Endpoint
+az sql server show --resource-group 'sqlfromcli' --name 'qtsqlserverfromcli'
