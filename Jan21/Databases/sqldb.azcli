@@ -3,3 +3,6 @@ az group create --location 'eastus'  --name 'sqlfromcli'
 
 # Create a sql server
 az sql server create --admin-user 'qtdevops' --admin-password 'motherindia@123' --name 'qtsqlserverfromcli' --enable-public-network true --resource-group 'sqlfromcli'
+
+# Create a sql single database
+az sql db create --name 'qtsqldbfromcli' --resource-group 'sqlfromcli' --server 'qtsqlserverfromcli' --sample-name 'AdventureWorksLT' --edition 'Basic' 
