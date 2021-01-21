@@ -2,3 +2,4 @@
 az group create --location 'eastus'  --name 'sqlfromcli'
 
 # Create a sql server
+az sql server create --admin-user 'qtdevops' --admin-password 'motherindia@123' --name 'qtsqlserverfromcli' --enable-public-network true --resource-group 'sqlfromcli'
