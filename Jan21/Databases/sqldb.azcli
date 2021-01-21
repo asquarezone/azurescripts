@@ -1,0 +1,4 @@
+# Create a resource group
+az group create --location 'eastus'  --name 'sqlfromcli'
+
+# Create a sql server
