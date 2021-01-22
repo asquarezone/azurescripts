@@ -1,0 +1,10 @@
+# Get all the resource groups
+az group list
+
+# Query to fetch all the resource groups in centralindia
+az group list --query "[?location=='centralindia']"
+
+# Query to fetch all the resource group names, tags of eastus location
+ az group list --query "[?location=='eastus'].{name: name, tags: tags}"
+
+  az group list --query "[?location=='eastus'].{name: name, tags: tags}" --output table
