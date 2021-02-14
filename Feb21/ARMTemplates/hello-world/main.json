@@ -1,5 +1,21 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "0.0.0.1",
-    "resources": []
+    "resources": [
+        {
+            "name": "string",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "sku": {
+                "name": "Standard_RAGZRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "location": "East US",
+            "properties": {
+                "accessTier": "Hot"
+            }
+
+        }
+    ]
 }
