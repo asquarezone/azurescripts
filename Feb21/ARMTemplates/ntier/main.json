@@ -1,38 +1,70 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "0.0.0.1",
+    "parameters": {
+        "vnetname": {
+            "type": "string",
+            "metadata": {
+                "description": "name of the vnet"
+            },
+            "defaultValue": "ntier"
+
+        },
+        "subnetnames": {
+            "type": "array",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": ["web", "app", "db"]
+        },
+        "vnetaddressspace": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": "10.10.0.0/16"
+        },
+        "subnetaddressspaces": {
+            "type": "array",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": ["10.10.0.0/24", "10.10.1.0/24", "10.10.2.0/24"]
+        }
+        
+    },
     "resources": [
         {
-            "name": "ntier",
+            "name": "[parameters('vnetname')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-11-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "ntier"
+                "displayName": "[parameters('vnetname')]"
             },
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
-                        "10.10.0.0/16"
+                        "[parameters('vnetaddressspace')]"
                     ]
                 },
                 "subnets": [
                     {
-                        "name": "web",
+                        "name": "[parameters('subnetnames')[0]]",
                         "properties": {
-                            "addressPrefix": "10.10.0.0/24"
+                            "addressPrefix": "[parameters('subnetaddressspaces')[0]]"
                         }
                     },
                     {
-                        "name": "app",
+                        "name": "[parameters('subnetnames')[1]]",
                         "properties": {
-                            "addressPrefix": "10.10.1.0/24"
+                            "addressPrefix": "[parameters('subnetaddressspaces')[1]]"
                         }
                     },
                     {
-                        "name": "db",
+                        "name": "[parameters('subnetnames')[2]]",
                         "properties": {
-                            "addressPrefix": "10.10.2.0/24"
+                            "addressPrefix": "[parameters('subnetaddressspaces')[2]]"
                         }
                     }
                 ]
