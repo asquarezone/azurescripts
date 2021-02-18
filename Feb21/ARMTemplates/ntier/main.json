@@ -20,7 +20,6 @@
     },
     "variables": {
         "vnetname": "ntier",
-        "subnetnames": ["web", "app", "db"],
         "location": "[resourceGroup().location]"
     },
     "resources": [
@@ -37,28 +36,26 @@
                     "addressPrefixes": [
                         "[parameters('vnetaddressspace')]"
                     ]
-                },
-                "subnets": [
-                    {
-                        "name": "[variables('subnetnames')[0]]",
-                        "properties": {
-                            "addressPrefix": "[parameters('subnetaddressspaces')[0]]"
-                        }
-                    },
-                    {
-                        "name": "[variables('subnetnames')[1]]",
-                        "properties": {
-                            "addressPrefix": "[parameters('subnetaddressspaces')[1]]"
-                        }
-                    },
-                    {
-                        "name": "[variables('subnetnames')[2]]",
-                        "properties": {
-                            "addressPrefix": "[parameters('subnetaddressspaces')[2]]"
-                        }
-                    }
-                ]
+                }
             }
+        },
+        {
+            "name": "[concat(variables('vnetname'), '/', 'subnet',copyIndex())]",
+            "apiVersion": "2020-07-01",
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "properties": {
+                "addressPrefix": "[parameters('subnetaddressspaces')[copyIndex()]]"
+
+            },
+            "copy": {
+                "name": "subnetCopy",
+                "count": "[length(parameters('subnetaddressspaces'))]",
+                "mode": "serial"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetname'))]"
+            ]
+        
         }
 
     ]
