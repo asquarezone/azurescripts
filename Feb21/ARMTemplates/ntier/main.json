@@ -20,7 +20,8 @@
     },
     "variables": {
         "vnetname": "ntier",
-        "location": "[resourceGroup().location]"
+        "location": "[resourceGroup().location]",
+        "subnet0": "[concat(variables('vnetname'), '/', 'subnet0')]"
     },
     "resources": [
         {
@@ -56,7 +57,83 @@
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetname'))]"
             ]
         
+        },
+        {
+            "name": "qtpubiparm",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-07-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "qt public arm"
+            },
+            "sku": {
+                "name": "Basic"
+            }
+            
+        },
+        {
+            "name": "webnsg",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-07-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "allowall",
+                        "properties": {
+                            "description": "open all ports for communication",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+            
+
+        },
+        {
+            "name": "qtnic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-07-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "qtnic"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses','qtpubiparm')]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', 'webnsg')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetname'), 'subnet0')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "qtwebvm",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2020-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "ubuntu"
+            }
+            
         }
+        
 
     ]
 }
