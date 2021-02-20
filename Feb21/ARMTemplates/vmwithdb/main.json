@@ -1,0 +1,211 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "0.0.0.1",
+    "resources": [
+       {
+           "name": "[toLower('webserverstorage')]",
+           "type": "Microsoft.Storage/storageAccounts",
+           "apiVersion": "2019-06-01",
+           "location": "[resourceGroup().location]",
+           "tags": {
+               "displayName": "webserver Storage Account"
+           },
+           "sku": {
+               "name": "Standard_LRS"
+           },
+           "kind": "Storage"
+       },
+       {
+           "name": "webserver-PublicIP",
+           "type": "Microsoft.Network/publicIPAddresses",
+           "apiVersion": "2019-11-01",
+           "location": "[resourceGroup().location]",
+           "tags": {
+               "displayName": "PublicIPAddress"
+           },
+           "properties": {
+               "publicIPAllocationMethod": "Dynamic",
+               "dnsSettings": {
+                   "domainNameLabel": "[toLower('webserver')]"
+               }
+           }
+       },
+       {
+           "name": "webserver-nsg",
+           "type": "Microsoft.Network/networkSecurityGroups",
+           "apiVersion": "2018-08-01",
+           "location": "[resourceGroup().location]",
+           "properties": {
+               "securityRules": [
+                   {
+                       "name": "nsgRule1",
+                       "properties": {
+                           "description": "description",
+                           "protocol": "Tcp",
+                           "sourcePortRange": "*",
+                           "destinationPortRange": "22",
+                           "sourceAddressPrefix": "*",
+                           "destinationAddressPrefix": "*",
+                           "access": "Allow",
+                           "priority": 100,
+                           "direction": "Inbound"
+                       }
+                   }
+               ]
+           }
+       },
+       {
+           "name": "webserver-VirtualNetwork",
+           "type": "Microsoft.Network/virtualNetworks",
+           "apiVersion": "2019-11-01",
+           "location": "[resourceGroup().location]",
+           "dependsOn": [
+               "[resourceId('Microsoft.Network/networkSecurityGroups', 'webserver-nsg')]"
+           ],
+           "tags": {
+               "displayName": "webserver-VirtualNetwork"
+           },
+           "properties": {
+               "addressSpace": {
+                   "addressPrefixes": [
+                       "10.0.0.0/16"
+                   ]
+               },
+               "subnets": [
+                   {
+                       "name": "webserver-VirtualNetwork-Subnet",
+                       "properties": {
+                           "addressPrefix": "10.0.0.0/24",
+                           "networkSecurityGroup": {
+                               "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'webserver-nsg')]"
+                           }
+                       }
+                   }
+               ]
+           }
+       },
+       {
+           "name": "webserver-NetworkInterface",
+           "type": "Microsoft.Network/networkInterfaces",
+           "apiVersion": "2019-11-01",
+           "location": "[resourceGroup().location]",
+           "dependsOn": [
+               "[resourceId('Microsoft.Network/publicIPAddresses', 'webserver-PublicIP')]",
+               "[resourceId('Microsoft.Network/virtualNetworks', 'webserver-VirtualNetwork')]"
+           ],
+           "tags": {
+               "displayName": "webserver-NetworkInterface"
+           },
+           "properties": {
+               "ipConfigurations": [
+                   {
+                       "name": "ipConfig1",
+                       "properties": {
+                           "privateIPAllocationMethod": "Dynamic",
+                           "publicIPAddress": {
+                               "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'webserver-PublicIP')]"
+                           },
+                           "subnet": {
+                               "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'webserver-VirtualNetwork', 'webserver-VirtualNetwork-Subnet')]"
+                           }
+                       }
+                   }
+               ]
+           }
+       },
+       {
+           "name": "webserver",
+           "type": "Microsoft.Compute/virtualMachines",
+           "apiVersion": "2019-07-01",
+           "location": "[resourceGroup().location]",
+           "dependsOn": [
+               "[resourceId('Microsoft.Network/networkInterfaces', 'webserver-NetworkInterface')]"
+           ],
+           "tags": {
+               "displayName": "webserver"
+           },
+           "properties": {
+               "hardwareProfile": {
+                   "vmSize": "Standard_B1s"
+               },
+               "osProfile": {
+                   "computerName": "webserver",
+                   "adminUsername": "adminUsername",
+                   "adminPassword": "adminPassword"
+               },
+               "storageProfile": {
+                   "imageReference": {
+                       "publisher": "Canonical",
+                       "offer": "UbuntuServer",
+                       "sku": "16.04-LTS",
+                       "version": "latest"
+                   },
+                   "osDisk": {
+                       "name": "webserver-OSDisk",
+                       "caching": "ReadWrite",
+                       "createOption": "FromImage"
+                   }
+               },
+               "networkProfile": {
+                   "networkInterfaces": [
+                       {
+                           "id": "[resourceId('Microsoft.Network/networkInterfaces', 'webserver-NetworkInterface')]"
+                       }
+                   ]
+               },
+               "diagnosticsProfile": {
+                   "bootDiagnostics": {
+                       "enabled": true,
+                       "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', toLower('webserverstorage'))).primaryEndpoints.blob]"
+                   }
+               }
+           }
+       },
+       {
+           "name": "sqlServer1",
+           "type": "Microsoft.Sql/servers",
+           "apiVersion": "2014-04-01",
+           "location": "[resourceGroup().location]",
+           "tags": {
+               "displayName": "sqlServer1"
+           },
+           "properties": {
+               "administratorLogin": "adminUsername",
+               "administratorLoginPassword": "adminPassword"
+           },
+           "resources": [
+               {
+                   "type": "firewallRules",
+                   "apiVersion": "2014-04-01",
+                   "dependsOn": [
+                       "[resourceId('Microsoft.Sql/servers', 'sqlServer1')]"
+                   ],
+                   "location": "[resourceGroup().location]",
+                   "name": "AllowAllWindowsAzureIps",
+                   "properties": {
+                       "startIpAddress": "0.0.0.0",
+                       "endIpAddress": "0.0.0.0"
+                   }
+               }
+           ]
+       },
+       {
+           "name": "sqlServer1/qtsqlDatabase1",
+           "type": "Microsoft.Sql/servers/databases",
+           "apiVersion": "2014-04-01",
+           "location": "[resourceGroup().location]",
+           "tags": {
+               "displayName": "qtsqlDatabase1"
+           },
+           "dependsOn": [
+               "[resourceId('Microsoft.Sql/servers', 'sqlServer1')]"
+           ],
+           "properties": {
+               "collation": "SQL_Latin1_General_CP1_CI_AS",
+               "edition": "Basic",
+               "maxSizeBytes": "1073741824",
+               "requestedServiceObjectiveName": "Basic"
+           }
+       }
+    ]
+}

@@ -24,6 +24,7 @@
         "subnet0": "[concat(variables('vnetname'), '/', 'subnet0')]"
     },
     "resources": [
+        
         {
             "name": "[variables('vnetname')]",
             "type": "Microsoft.Network/virtualNetworks",
