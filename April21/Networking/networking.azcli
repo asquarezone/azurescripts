@@ -1,0 +1,22 @@
+# Create a resource group
+az group create --location eastus --name 'fromcli'
+
+# Create a virtual network
+az network vnet create --name 'winntier' --resource-group 'fromcli' --address-prefixes "172.16.0.0/16"
+
+# Create subnets
+# Application Gateway Subnet
+az network vnet subnet create --address-prefixes "172.16.0.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'ApplicationGatewaySubnet'
+# Management Subnet
+az network vnet subnet create --address-prefixes "172.16.1.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'ManagementSubnet'
+# Webtier Subnet
+az network vnet subnet create --address-prefixes "172.16.2.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'WebTierSubnet'
+# Business Tier
+az network vnet subnet create --address-prefixes "172.16.3.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'BusinessTierSubnet'
+# DataTier
+az network vnet subnet create --address-prefixes "172.16.4.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'DataTierSubnet'
+# ActiveDirectory Subnet
+az network vnet subnet create --address-prefixes "172.16.5.0/24" --resource-group 'fromcli' --vnet-name 'winntier' --name 'ActiveDirectorySubnet'
+
+# 
+
