@@ -22,3 +22,16 @@ $adsubnet = New-AzVirtualNetworkSubnetConfig -Name 'ActiveDirectorySubnet' -Addr
 # Create a virtual network
 $ntiervnet = New-AzVirtualNetwork -Name 'frompsntier' -ResourceGroupName $resg.ResourceGroupName -Location $resg.Location -AddressPrefix '10.10.0.0/16' -Subnet $appgwsubnet,$webtiersubnet,$businesstiersubnet,$datatiersubnet,$managementtiersubnet,$adsubnet
 
+
+# Create a NetworkSecurity Group rule to allow port 80
+$httpnsgrule = New-AzNetworkSecurityRuleConfig -Name 'allowhttp' -Description 'Allow http request from anywhere' -Protocol 'Tcp' -SourcePortRange '*' -SourceAddressPrefix '*' -DestinationPortRange 80 -DestinationAddressPrefix '*' -Access 'Allow' -Direction 'Inbound' -Priority '300'
+
+$httpsnsgrule = New-AzNetworkSecurityRuleConfig -Name 'allowhttps' -Description 'Allow https request from anywhere' -Protocol 'Tcp' -SourcePortRange '*' -SourceAddressPrefix '*' -DestinationPortRange 443 -DestinationAddressPrefix '*' -Access 'Allow' -Direction 'Inbound' -Priority '310'
+
+# Now apply these rules to Network Security Group
+$appgwnsg = New-AzNetworkSecurityGroup -Name 'Appgatewaynsg' -Location $resg.Location -ResourceGroupName $resg.ResourceGroupName -SecurityRules $httpnsgrule,$httpsnsgrule 
+
+# Now lets apply the nsg to subnet
+Set-AzVirtualNetworkSubnetConfig -Name $appgwsubnet.Name -VirtualNetwork $ntiervnet -NetworkSecurityGroup $appgwnsg -AddressPrefix $appgwsubnet.AddressPrefix
+
+$ntiervnet | Set-AzVirtualNetwork
