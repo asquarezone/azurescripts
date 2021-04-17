@@ -1,0 +1,35 @@
+{
+    "Name": "qt project contributor",
+    "IsCustom": true,
+    "Description": "This roles give full access to vms and sql and readonly permission to sql and vnet",
+    "Actions": [
+        "Microsoft.Compute/*/action",
+        "Microsoft.Compute/availabilitySets/*",
+        "Microsoft.Compute/capacityReservationGroups/*",
+        "Microsoft.Compute/cloudServices/*",
+        "Microsoft.Compute/diskAccesses/*",
+        "Microsoft.Compute/diskEncryptionSets/*",
+        "Microsoft.Compute/disks/*",
+        "Microsoft.Compute/galleries/*",
+        "Microsoft.Compute/hostGroups/*",
+        "Microsoft.Compute/images/*",
+        "Microsoft.Compute/locations/*",
+        "Microsoft.Compute/operations/read",
+        "Microsoft.Compute/proximityPlacementGroups/*",
+        "Microsoft.Compute/restorePointCollections/*",
+        "Microsoft.Compute/sharedVMExtensions/*",
+        "Microsoft.Compute/sharedVMImages/*",
+        "Microsoft.Compute/skus/read",
+        "Microsoft.Compute/snapshots/*",
+        "Microsoft.Compute/sshPublicKeys/*",
+        "Microsoft.Compute/virtualMachines/*"
+
+    ],
+    "NotActions": [],
+    "DataActions": [
+        "Microsoft.Compute/virtualMachines/login/action",
+        "Microsoft.Compute/virtualMachines/loginAsAdmin/action"
+    ],
+    "NotDataActions": [],
+    "AssignableScopes": ["/subscriptions/58376b06-f20d-4a7a-a75d-cbd03b2135a6"]
+}
