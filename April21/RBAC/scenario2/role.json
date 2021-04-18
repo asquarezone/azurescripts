@@ -1,0 +1,11 @@
+{
+    "Name": "Virtual Machine Reader",
+    "IsCustom": true,
+    "Description": "Virtual Machine Reader",
+    "Actions": [
+        "Microsoft.Compute/availabilitySets/read",
+        "Microsoft.Compute/availabilitySets/vmSizes/read",
+        "Microsoft.Compute/capacityReservationGroups/read",
+        
+    ]
+}

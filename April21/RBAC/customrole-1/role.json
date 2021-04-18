@@ -1,0 +1,16 @@
+{
+    "Name": "Virtual Machine Operator",
+    "IsCustom": true,
+    "Description": "Can start, stop and restart virtual machines",
+    "Actions": [
+        "Microsoft.Compute/virtualMachines/read",
+        "Microsoft.Compute/virtualMachines/start/action",
+        "Microsoft.Compute/virtualMachines/powerOff/action",
+        "Microsoft.Compute/virtualMachines/restart/action"
+    ],
+    "NotActions": [],
+    "DataActions": [],
+    "NotDataActions": [],
+    "AssignableScopes": [ "/" ]
+
+}
