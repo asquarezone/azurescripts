@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Create a resource group
+az group create --name 'vmsfromcli' --location 'eastus'
+
+# Create a vm
+az vm create --name 'ubuntuvm' --resource-group 'vmsfromcli' --admin-username 'qtdevops' --admin-password 'qtdevops@123' --image 'UbuntuLTS' 
+
