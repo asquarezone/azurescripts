@@ -6,3 +6,10 @@ az group create --name 'vmsfromcli' --location 'eastus'
 # Create a vm
 az vm create --name 'ubuntuvm' --resource-group 'vmsfromcli' --admin-username 'qtdevops' --admin-password 'qtdevops@123' --image 'UbuntuLTS' 
 
+# open 80 port 
+az vm open-port --port 80 --name 'ubuntuvm' --resource-group 'vmsfromcli'
+
+# Obtain the public ip address
+ az vm list-ip-addresses  --name 'ubuntuvm'
+
+# Now ssh into the azure vm and install lampstack
