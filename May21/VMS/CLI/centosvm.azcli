@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Creating the resource group
+az group create --name 'centosweb' --location 'eastus'
+
+# Create the VM
+az vm create --name 'webserver' --resource-group 'centosweb' --admin-username 'qtdevops' --admin-password 'qtdevops@123' --image 'CentOS' --size 'Standard_B1s'
+
+# Open 80 port
+az vm open-port --port 80 --name 'webserver' --resource-group 'centosweb'
+
+# get public ip address
+az vm list-ip-addresses --name 'webserver' --resource-group 'centosweb'
+
