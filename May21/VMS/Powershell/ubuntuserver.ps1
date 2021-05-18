@@ -25,8 +25,13 @@ $nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroup.ResourceGrou
     -Location $resourceGroup.Location  -Name `
     "NSG-FrontEnd" -SecurityRules $rule1,$rule2
 
-$nic = New-AzNetworkInterface -Name 'ubuntunic' -ResourceGroupName $resourceGroup.ResourceGroupName `
-    -Location $resourceGroup.Location -SubnetId $vnet.Subnets[0].Id -PublicIpAddressId $publicIp.Id `
-    -NetworkSecurityGroupId $nsg.Id
+$SecurePassword = ConvertTo-SecureString "qtdevops@123" -AsPlainText -Force
+$Credential = New-Object System.Management.Automation.PSCredential ("qtdevops", $SecurePassword);
+
+$vm = New-AzVM -Credential $Credential -ResourceGroupName $resourceGroup.ResourceGroupName `
+    -Location $resourceGroup.Location -SubnetName $vnet.Subnets[0].Name -VirtualNetworkName $vnet.Name`
+    -PublicIpAddressName $publicIp.Name -Image 'UbuntuLTS' -OpenPorts 22,80  -Size "Standard_B1s" `
+    -Name "qtlinuxvm"
+
 
     
