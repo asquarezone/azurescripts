@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Create a resource group
+az group create --location 'eastus' --name 'storageaccdemo'
+
+# For manual verification of the presence of resource group
+# az group list --output table
+
+# create a storage account
+az storage account create --name qtstorfromcli --resource-group 'storageaccdemo' --access-tier Hot --sku Standard_RAGRS --location 'eastus'
+
+# Get the signed in user id
+az ad signed-in-user show --query objectId -o tsv
+
+# Assign role
+az role assignment create --role 'Storage Blob Data Contributor' --assignee '<copy the user object id>' --scope '/subscriptions/<subscription-id>/resourceGroups/<resource-group-name>/providers/Microsoft.Storage/storageAccounts/<storage-account-name>'
+
+# Create a container
+az storage container create --account-name 'qtstorfromcli' --name 'images' --auth-mode login
+
+touch content.txt
+
+# Upload blob
+az storage blob upload --container-name 'images' --name 'content.txt' --file 'content.txt' --account-name 'qtstorfromcli'
+
+az storage blob list --account-name 'qtstorfromcli' --container-name 'images' --output table
