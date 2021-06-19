@@ -1,0 +1,24 @@
+#!/bin/bash
+
+rg_name="sqlfromcli"
+location="eastus"
+
+username="qtdevops"
+password="password123!forsql"
+server="qtdbserverfromcli"
+start_ip=0.0.0.0
+end_ip=255.255.255.255
+
+database="qtecommerce"
+
+echo "Creating a resource group"
+az group create --name "$rg_name" --location "$location"
+
+echo "Create Server"
+az sql server create --name "$server" --resource-group "$rg_name" --location "$location" --admin-user "$username" --admin-password "$password"
+
+echo "Configuring firewall"
+az sql server firewall-rule create --resource-group "$rg_name" --server "$server" --start-ip-address "$start_ip" --end-ip-address "$end_ip" --name "AllowAll"
+
+echo "Creating a Single Database"
+az sql db create --resource-group "$rg_name" --server "$server" --name "$database" --sample-name "AdventureWorksLT" --compute-model "Serverless" --edition "GeneralPurpose" --family "Gen5" --capacity 1 --zone-redundant
