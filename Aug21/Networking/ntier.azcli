@@ -17,3 +17,9 @@ az network vnet subnet create --name 'business' --address-prefixes '192.168.3.0/
 az network vnet subnet create --name 'data' --address-prefixes '192.168.4.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
 
 az network vnet subnet create --name 'ad' --address-prefixes '192.168.5.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network nsg create --name 'openhttpnssh' --resource-group 'ntier-rg'
+
+az network nsg rule create --name 'ssh' --nsg-name 'openhttpnssh' --priority 300 --resource-group 'ntier-rg' --access 'Allow' --source-address-prefixes '*' --source-port-ranges '*' --direction 'Inbound' --destination-address-prefixes '*' --destination-port-ranges '22'
+
+az network nsg rule create --name 'https' --nsg-name 'openhttpnssh' --priority 310 --resource-group 'ntier-rg' --access 'Allow' --source-address-prefixes '*' --source-port-ranges '*' --direction 'Inbound' --destination-address-prefixes '*' --destination-port-ranges 80 443
