@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Create a resource group
+
+az group create --location 'eastus' --name 'ntier-rg'
+
+az network vnet create --name 'ntier' --resource-group 'ntier-rg' --address-prefixes '192.168.0.0/16'
+
+az network vnet subnet create --name 'appgateway' --address-prefixes '192.168.0.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network vnet subnet create --name 'management' --address-prefixes '192.168.1.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network vnet subnet create --name 'web' --address-prefixes '192.168.2.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network vnet subnet create --name 'business' --address-prefixes '192.168.3.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network vnet subnet create --name 'data' --address-prefixes '192.168.4.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
+
+az network vnet subnet create --name 'ad' --address-prefixes '192.168.5.0/24' --resource-group 'ntier-rg' --vnet-name 'ntier'
