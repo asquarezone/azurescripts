@@ -10,3 +10,8 @@ $ad = New-AzVirtualNetworkSubnetConfig -AddressPrefix '192.168.5.0/24' -Name 'ad
 
 $ntier = New-AzVirtualNetwork -Name 'ntier' -ResourceGroupName $resg.ResourceGroupName -Location $resg.Location -AddressPrefix '192.168.0.0/16' -Subnet $appgw,$mgmt,$web,$business,$data,$ad
 
+$openports = New-AzNetworkSecurityRuleConfig -Name 'openports' -Access 'Allow' -SourcePortRange '*' -SourceAddressPrefix '*' -DestinationAddressPrefix '*' -DestinationPortRange '22','80','443' -Priority '410' -Protocol 'Tcp' -Direction 'Inbound'
+
+$denyfromdata = New-AzNetworkSecurityRuleConfig -Name 'deny' -Access 'Deny' -SourceAddressPrefix '192.168.4.0/24' -SourcePortRange '*' -DestinationPortRange '*' -DestinationAddressPrefix '*' -Priority '400'-Protocol 'Tcp' -Direction 'Inbound'
+
+$nsg = New-AzNetworkSecurityGroup -Name 'ntiernsg' -ResourceGroupName $resg.ResourceGroupName -Location $resg.Location -SecurityRules $openports,$denyfromdata
