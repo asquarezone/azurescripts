@@ -1,0 +1,28 @@
+{
+    "properties": {
+        "roleName": "QTQA",
+        "description": "Lets you manage storage accounts, including accessing storage account keys which provide full access to storage account data.",
+        "assignableScopes": [
+            "/subscriptions/ec402c1e-e1fd-4f6d-8501-77ab3f944a13"
+        ],
+        "permissions": [
+            {
+                "actions": [
+                    "*/read",
+                    "Microsoft.Authorization/*/read",
+                    "Microsoft.Insights/alertRules/*",
+                    "Microsoft.Insights/diagnosticSettings/*",
+                    "Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action",
+                    "Microsoft.ResourceHealth/availabilityStatuses/read",
+                    "Microsoft.Resources/deployments/*",
+                    "Microsoft.Resources/subscriptions/resourceGroups/read",
+                    "Microsoft.Storage/storageAccounts/*",
+                    "Microsoft.Support/*"
+                ],
+                "notActions": [],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
