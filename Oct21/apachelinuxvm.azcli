@@ -1,0 +1,9 @@
+#!/bin/bash
+# Create a resource group
+az group create --location 'eastus' --name 'linuxvm'
+az vm create --resource-group 'linuxvm' --name 'qtwebserver' \
+    --admin-username 'qtdevops' --admin-password learning@123 \
+    --image 'Canonical:UbuntuServer:18.04-LTS:latest' \
+    --size 'Standard_B1s'
+
+

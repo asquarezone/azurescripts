@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Create a resource group
+
+az group create --name 'vmssdemo' --location 'eastus'
+
+# Create a VMSS
+az vmss create `
+  --name 'myvmss' --resource-group 'vmssdemo' --admin-username 'qtdevops' `
+  --admin-password 'learning@123' --authentication-type 'password' `
+  --image 'UbuntuLTS' --instance-count 2 `
+  --vm-sku 'Standard_B1s' --zones 1 2 3
+
+# install a sample application in the vmss
