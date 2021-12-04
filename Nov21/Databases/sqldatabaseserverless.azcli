@@ -38,5 +38,10 @@ az sql db replica create --name 'qtecommerce02' `
 az sql db replica list-links --name 'qtecommerce02' --resource-group 'sqlfromcli' `
     --server 'qtsqlserverless01'
 
+# initiate a failover
+
+az sql db replica set-primary --name 'qtecommerce02' --resource-group 'sqlfromcli' `
+    --server 'qtsqlserverless02'
+
 
 
