@@ -1,0 +1,10 @@
+az group create --name 'cosmosdemo' --location 'eastus'
+
+az cosmosdb create --resource-group 'cosmosdemo' --name 'qtcosmosfromcli'
+
+az cosmosdb delete --name 'qtcosmosfromcli' --resource-group 'cosmosdemo'
+
+
+az cosmosdb create --resource-group 'cosmosdemo' --name 'qtcosmosmongofromcli' --kind 'MongoDB'
+az cosmosdb mongodb database create --resource-group 'cosmosdemo' --account-name 'qtcosmosmongofromcli' --name 'instacook'
+az cosmosdb delete --name 'qtcosmosmongofromcli' --resource-group 'cosmosdemo'
