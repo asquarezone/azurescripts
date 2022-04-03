@@ -1,0 +1,18 @@
+# create a resource group
+az group create --location 'eastus' --name 'fromcli'
+# create a vnet with name ntier and address space 172.16.0.0/16
+az network vnet create --resource-group 'fromcli' --name 'ntier' `
+    --address-prefixes '172.16.0.0/16' --location 'eastus'
+
+az network vnet subnet create --address-prefixes '172.16.0.0/24' --name 'web' `
+    --resource-group 'fromcli' --vnet-name 'ntier'
+
+az network vnet subnet create --address-prefixes '172.16.1.0/24' --name 'app' `
+    --resource-group 'fromcli' --vnet-name 'ntier'
+
+az network vnet subnet create --address-prefixes '172.16.2.0/24' --name 'db' `
+    --resource-group 'fromcli' --vnet-name 'ntier'
+
+az network vnet subnet create --address-prefixes '172.16.3.0/24' --name 'mgmt' `
+    --resource-group 'fromcli' --vnet-name 'ntier'
+
