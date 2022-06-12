@@ -1,0 +1,11 @@
+# In this file we will be creating and deleting the resource group
+
+# Create a resource group
+az group create --location 'centralus' --name 'fromcli'
+
+# delete the resource group
+# https://docs.microsoft.com/en-us/cli/azure/group?view=azure-cli-latest#az-group-delete
+az group delete --name 'fromcli' --no-wait --yes
+
+
+
