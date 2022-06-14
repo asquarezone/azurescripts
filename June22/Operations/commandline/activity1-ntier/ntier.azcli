@@ -1,0 +1,16 @@
+# Create a resource group
+az group create --location 'centralus' --name 'ntier-cli'
+
+# Create a virtual network
+
+az network vnet create --name 'ntier' --resource-group 'ntier-cli' --address-prefixes '10.10.0.0/16'
+
+# Create web subnet
+
+az network vnet subnet create --name 'web' --address-prefixes '10.10.0.0/24' --vnet-name 'ntier' --resource-group 'ntier-cli'
+
+# Create business subnet
+az network vnet subnet create --name 'business' --address-prefixes '10.10.1.0/24' --vnet-name 'ntier' --resource-group 'ntier-cli'
+
+# Create data subnet 
+az network vnet subnet create --name 'data' --address-prefixes '10.10.2.0/24' --vnet-name 'ntier' --resource-group 'ntier-cli'
