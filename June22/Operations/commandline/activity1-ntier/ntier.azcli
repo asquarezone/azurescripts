@@ -23,3 +23,11 @@ az sql server create --name 'qtclisqlserver' --resource-group 'ntier-cli' --admi
 # Create azure sql database
 
 az sql db create --resource-group 'ntier-cli' --name 'qtemployeedb' --server 'qtclisqlserver' --edition 'GeneralPurpose' --family 'Gen5' --compute-model 'Serverless' --capacity 2
+
+
+# Allow specific ip or all ips from firewall
+
+az sql server firewall-rule create --resource-group 'ntier-cli' --server 'qtclisqlserver' --name 'allowall' --start-ip-address '0.0.0.0' --end-ip-address '255.255.255.255'
+
+# Database connection
+az sql server list --query "[?resourceGroup=='ntier-cli'].fullyQualifiedDomainName | [0]" --output tsv
