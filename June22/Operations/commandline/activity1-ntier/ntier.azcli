@@ -14,3 +14,12 @@ az network vnet subnet create --name 'business' --address-prefixes '10.10.1.0/24
 
 # Create data subnet 
 az network vnet subnet create --name 'data' --address-prefixes '10.10.2.0/24' --vnet-name 'ntier' --resource-group 'ntier-cli'
+
+
+# Create azure sql database server
+
+az sql server create --name 'qtclisqlserver' --resource-group 'ntier-cli' --admin-user 'qtdevops' --admin-password 'motherindia@123'
+
+# Create azure sql database
+
+az sql db create --resource-group 'ntier-cli' --name 'qtemployeedb' --server 'qtclisqlserver' --edition 'GeneralPurpose' --family 'Gen5' --compute-model 'Serverless' --capacity 2
