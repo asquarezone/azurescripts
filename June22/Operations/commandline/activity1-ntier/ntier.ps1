@@ -11,3 +11,32 @@ $data = New-AzVirtualNetworkSubnetConfig -Name 'data' -AddressPrefix '10.11.2.0/
 
 $vnet = New-AzVirtualNetwork -Name 'ntier' -ResourceGroupName $resg_name -Location $location -Subnet $web,$business,$data -AddressPrefix '10.11.0.0/16'
 
+$dbserverName = 'qtsqlserverps1'
+
+Write-Host "Creating the database server"
+$server = New-AzSqlServer -ServerName $dbserverName `
+    -Location $location `
+    -ResourceGroupName $resg_name `
+    -ServerVersion '12.0' `
+    -SqlAdministratorCredentials (Get-Credential)
+
+
+Write-Host "Creating firewall rule"
+New-AzSqlServerFirewallRule -FirewallRuleName 'openall' `
+    -ResourceGroupName $resg_name `
+    -StartIpAddress '0.0.0.0' `
+    -EndIpAddress '255.255.255.255' `
+    -ServerName $dbserverName
+
+
+Write-Host "Creating Database"
+$dbName = 'qtemployeesdb'
+$database = New-AzSqlDatabase -ResourceGroupName $resg_name `
+    -DatabaseName $dbName `
+    -ServerName $dbserverName `
+    -Edition 'GeneralPurpose' `
+    -ComputeModel 'Serverless' `
+    -ComputeGeneration 'Gen5' `
+    -VCore 2 `
+    -SampleName "AdventureWorksLT" `
+    -MinimumCapacity 2
