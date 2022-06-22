@@ -40,3 +40,23 @@ $database = New-AzSqlDatabase -ResourceGroupName $resg_name `
     -VCore 2 `
     -SampleName "AdventureWorksLT" `
     -MinimumCapacity 2
+
+
+New-AzVM `
+    -ResourceGroupName $resg_name `
+    -Name 'appserver' `
+    -Image 'Centos' `
+    -Size 'Standard_B1s' `
+    -Credential (Get-Credential) `
+    -SubnetName 'business' `
+    -VirtualNetworkName 'ntier'
+    
+    
+New-AzVM `
+    -ResourceGroupName $resg_name `
+    -Name 'webserver' `
+    -Image 'UbuntuLTS' `
+    -Size 'Standard_B1s' `
+    -Credential (Get-Credential) `
+    -SubnetName 'web' `
+    -VirtualNetworkName 'ntier'
