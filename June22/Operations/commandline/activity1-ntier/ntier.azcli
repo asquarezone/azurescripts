@@ -33,3 +33,5 @@ az sql server firewall-rule create --resource-group 'ntier-cli' --server 'qtclis
 az sql server list --query "[?resourceGroup=='ntier-cli'].fullyQualifiedDomainName | [0]" --output tsv
 
 az vm create --resource-group 'ntier-cli' --name 'appserver' --image 'Centos' --admin-username 'qtdevops' --admin-password 'motherindia@123' --authentication-type 'password' --vnet-name 'ntier' --subnet 'business' --size 'Standard_B1s' --query "publicIpAddress"
+
+az vm create --resource-group 'ntier-cli' --name 'webserver' --image 'UbuntuLTS' --admin-username 'qtdevops' --admin-password 'motherindia@123' --authentication-type 'password' --vnet-name 'ntier' --subnet 'web' --size 'Standard_B1s' --query "publicIpAddress"
