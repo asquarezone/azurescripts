@@ -6,6 +6,7 @@
             "type": "Microsoft.Network/virtualNetworks",
             "name": "ntier",
             "apiVersion": "2021-08-01",
+            "location": "centralus",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": ["10.10.0.0/16"]
