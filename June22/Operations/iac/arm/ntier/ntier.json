@@ -13,6 +13,14 @@
                 }
             
             }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2021-08-01",
+            "name": "ntier/web",
+            "properties": {
+                "addressPrefix": "10.10.0.0/24"
+            }
         }
     ]
     
