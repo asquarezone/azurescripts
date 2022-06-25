@@ -40,6 +40,52 @@
 
                 ]
             }
+        },
+        {
+            "name": "qtdbserver",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "qtdbserver"
+            },
+            "properties": {
+                "administratorLogin": "qtdevops",
+                "administratorLoginPassword": "motherindia@123"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2014-04-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', 'qtdbserver')]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "255.255.255.255"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "qtdbserver/qtdb",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2014-04-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "qtdb"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', 'qtdbserver')]"
+            ],
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "Basic",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "Basic"
+            }
         }
     ]
 }
