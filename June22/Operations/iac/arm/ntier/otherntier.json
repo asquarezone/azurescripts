@@ -42,12 +42,12 @@
             }
         },
         {
-            "name": "qtdbserver",
+            "name": "qtdbserver26",
             "type": "Microsoft.Sql/servers",
             "apiVersion": "2014-04-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "qtdbserver"
+                "displayName": "qtdbserver26"
             },
             "properties": {
                 "administratorLogin": "qtdevops",
@@ -58,7 +58,7 @@
                     "type": "firewallRules",
                     "apiVersion": "2014-04-01",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Sql/servers', 'qtdbserver')]"
+                        "[resourceId('Microsoft.Sql/servers', 'qtdbserver26')]"
                     ],
                     "location": "[resourceGroup().location]",
                     "name": "AllowAllWindowsAzureIps",
@@ -70,7 +70,7 @@
             ]
         },
         {
-            "name": "qtdbserver/qtdb",
+            "name": "qtdbserver26/qtdb",
             "type": "Microsoft.Sql/servers/databases",
             "apiVersion": "2014-04-01",
             "location": "[resourceGroup().location]",
@@ -78,7 +78,7 @@
                 "displayName": "qtdb"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', 'qtdbserver')]"
+                "[resourceId('Microsoft.Sql/servers', 'qtdbserver26')]"
             ],
             "properties": {
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
@@ -86,6 +86,184 @@
                 "maxSizeBytes": "1073741824",
                 "requestedServiceObjectiveName": "Basic"
             }
+        },
+        {
+            "name": "appnsg",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "openssh",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "openapp",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8080",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 310,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "appnic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "appnic"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'ntier')]"//,
+                //"[resourceId('Microsoft.Network/virtualNetworks/subnets', 'ntier', 'app')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "privateConfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets','ntier', 'app')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups','appnsg')]"
+                }
+            }
+        },
+        {
+            "name": "webpublicip",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "webpublicip"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "qtwebsrv"
+                }
+            }
+        },
+        {
+            "name": "webnsg",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "webnic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "webnic"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'ntier')]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "webipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'ntier', 'web')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses','webpublicip')]"
+                            }
+                        }
+                    }
+                ], 
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups','webnsg')]"
+                }
+            }
+
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "qtappserver",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces','appnic')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "qtappsrv",
+                    "adminPassword": "motherindia@123",
+                    "adminUsername": "qtdevops",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces','appnic')]"
+            ]
         }
     ]
 }
