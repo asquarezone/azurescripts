@@ -1,0 +1,82 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "resources": [
+	{
+		"type": "Microsoft.Network/virtualNetworks",
+		"apiVersion": "2021-08-01",
+		"name": "primaryvnet",
+		"location": "southindia",
+		"properties": {
+			"addressSpace": {
+				"addressPrefixes": [ "10.100.0.0/16" ]
+			},
+			"subnets": [
+			{
+				"name": "web",
+				"properties": {
+					"addressPrefix": "10.100.0.0/24"
+				}
+			},
+			{
+				"name": "mgmt",
+				"properties": {
+					"addressPrefix": "10.100.1.0/24"
+				}
+			},
+			{
+				"name": "app",
+				"properties": {
+					"addressPrefix": "10.100.2.0/24"
+				}
+			},
+			{
+				"name": "db",
+				"properties": {
+					"addressPrefix": "10.100.3.0/24"
+				}
+			}
+			
+			]
+		}
+	},
+	{
+		"type": "Microsoft.Network/virtualNetworks",
+		"apiVersion": "2021-08-01",
+		"name": "secondaryvnet",
+		"location": "centralindia",
+		"properties": {
+			"addressSpace": {
+				"addressPrefixes": [ "10.101.0.0/16" ]
+			},
+			"subnets": [
+			{
+				"name": "web",
+				"properties": {
+					"addressPrefix": "10.101.0.0/24"
+				}
+			},
+			{
+				"name": "mgmt",
+				"properties": {
+					"addressPrefix": "10.101.1.0/24"
+				}
+			},
+			{
+				"name": "app",
+				"properties": {
+					"addressPrefix": "10.101.2.0/24"
+				}
+			},
+			{
+				"name": "db",
+				"properties": {
+					"addressPrefix": "10.101.3.0/24"
+				}
+			}
+			
+			]
+		}
+	}
+	]
+}
