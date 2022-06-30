@@ -70,7 +70,7 @@
 			"apiVersion": "2020-11-01",
 			"name": "[format('primaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
 			"properties": {
-				"addressPrefix": "[format(parameters('secondary-subnet-cidr-format'),copyIndex())]"
+				"addressPrefix": "[format(parameters('primary-subnet-cidr-format'),copyIndex())]"
 			},
 			"copy": {
 				"name": "primary-subnet-copy",
@@ -90,7 +90,7 @@
 			"location": "[parameters('secondaryregion')]",
 			"properties": {
 				"addressSpace": {
-					"addressPrefixes": [ "[parameters('primary-cidr')]" ]
+					"addressPrefixes": [ "[parameters('secondary-cidr')]" ]
 				}
 			}
 		},
@@ -99,7 +99,7 @@
 			"apiVersion": "2020-11-01",
 			"name": "[format('secondaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
 			"properties": {
-				"addressPrefix": "[format(parameters('primary-subnet-cidr-format'),copyIndex())]"
+				"addressPrefix": "[format(parameters('secondary-subnet-cidr-format'),copyIndex())]"
 			},
 			"copy": {
 				"name": "secondary-subnet-copy",
