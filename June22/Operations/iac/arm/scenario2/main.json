@@ -1,82 +1,116 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "resources": [
-	{
-		"type": "Microsoft.Network/virtualNetworks",
-		"apiVersion": "2021-08-01",
-		"name": "primaryvnet",
-		"location": "southindia",
-		"properties": {
-			"addressSpace": {
-				"addressPrefixes": [ "10.100.0.0/16" ]
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"primaryregion": {
+			"type": "string",
+			"metadata": {
+				"description": "This is the primary region"
 			},
-			"subnets": [
-			{
-				"name": "web",
-				"properties": {
-					"addressPrefix": "10.100.0.0/24"
-				}
+			"defaultValue": "southindia"
+		},
+		"secondaryregion": {
+			"type": "string",
+			"metadata": {
+				"description": "This is the primary region"
 			},
-			{
-				"name": "mgmt",
-				"properties": {
-					"addressPrefix": "10.100.1.0/24"
-				}
+			"defaultValue": "centralindia"
+		},
+		"primary-cidr": {
+			"type": "string",
+			"metadata": {
+				"description": "This is the primary vnet address space"
 			},
-			{
-				"name": "app",
-				"properties": {
-					"addressPrefix": "10.100.2.0/24"
-				}
+			"defaultValue": "10.0.0.0/16"
+		},
+		"secondary-cidr": {
+			"type": "string",
+			"metadata": {
+				"description": "This is the secondary vnet address space"
 			},
-			{
-				"name": "db",
-				"properties": {
-					"addressPrefix": "10.100.3.0/24"
-				}
-			}
-			
-			]
+			"defaultValue": "10.1.0.0/16"
+		},
+		"subnet-names": {
+			"type": "array",
+			"metadata": {
+				"description": "subnet name"
+			},
+			"defaultValue": ["web", "app", "db", "mgmt"]
+		},
+		"primary-subnet-cidr-format": {
+			"type": "string",
+			"metadata": {
+				"description": "subnet cidr format"
+			},
+			"defaultValue": "10.0.{0}.0/24"
+		},
+		"secondary-subnet-cidr-format": {
+			"type": "string",
+			"metadata": {
+				"description": "subnet cidr format"
+			},
+			"defaultValue": "10.1.{0}.0/24"
 		}
+
 	},
-	{
-		"type": "Microsoft.Network/virtualNetworks",
-		"apiVersion": "2021-08-01",
-		"name": "secondaryvnet",
-		"location": "centralindia",
-		"properties": {
-			"addressSpace": {
-				"addressPrefixes": [ "10.101.0.0/16" ]
-			},
-			"subnets": [
-			{
-				"name": "web",
-				"properties": {
-					"addressPrefix": "10.101.0.0/24"
-				}
-			},
-			{
-				"name": "mgmt",
-				"properties": {
-					"addressPrefix": "10.101.1.0/24"
-				}
-			},
-			{
-				"name": "app",
-				"properties": {
-					"addressPrefix": "10.101.2.0/24"
-				}
-			},
-			{
-				"name": "db",
-				"properties": {
-					"addressPrefix": "10.101.3.0/24"
+	"resources": [
+		{
+			"type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2020-11-01",
+			"name": "primaryvnet",
+			"location": "[parameters('primaryregion')]",
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [ "[parameters('primary-cidr')]" ]
 				}
 			}
-			
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks/subnets",
+			"apiVersion": "2020-11-01",
+			"name": "[format('primaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
+			"properties": {
+				"addressPrefix": "[format(parameters('secondary-subnet-cidr-format'),copyIndex())]"
+			},
+			"copy": {
+				"name": "primary-subnet-copy",
+				"count": "[length(parameters('subnet-names'))]",
+				"mode": "Serial"
+
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks','primaryvnet')]"
 			]
+			
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks",
+			"apiVersion": "2020-11-01",
+			"name": "secondaryvnet",
+			"location": "[parameters('secondaryregion')]",
+			"properties": {
+				"addressSpace": {
+					"addressPrefixes": [ "[parameters('primary-cidr')]" ]
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Network/virtualNetworks/subnets",
+			"apiVersion": "2020-11-01",
+			"name": "[format('secondaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
+			"properties": {
+				"addressPrefix": "[format(parameters('primary-subnet-cidr-format'),copyIndex())]"
+			},
+			"copy": {
+				"name": "secondary-subnet-copy",
+				"count": "[length(parameters('subnet-names'))]",
+				"mode": "Serial"
+
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Network/virtualNetworks','secondaryvnet')]"
+			]
+			
 		}
-	}
 	]
 }
