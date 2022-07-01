@@ -35,7 +35,7 @@
 			"metadata": {
 				"description": "subnet name"
 			},
-			"defaultValue": ["web", "app", "db", "mgmt"]
+			"defaultValue": [ "web", "app", "db", "mgmt" ]
 		},
 		"primary-subnet-cidr-format": {
 			"type": "string",
@@ -50,12 +50,35 @@
 				"description": "subnet cidr format"
 			},
 			"defaultValue": "10.1.{0}.0/24"
+		},
+		"dbusername": {
+			"type": "string",
+			"metadata": {
+				"description": "username of the database"
+			},
+			"defaultValue": "qtdevops"
+		},
+		"dbpassword": {
+			"type": "securestring",
+			"metadata": {
+				"description": "Password for the database server"
+			}
 		}
 
 	},
 	"variables": {
 		"primary-vnet-name": "ntier-primary-vnet",
-		"secondary-vnet-name": "ntier-secondary-vnet"
+		"secondary-vnet-name": "ntier-secondary-vnet",
+		"randomValue": "[uniqueString(resourceGroup().id)]",
+		"primary": "primary",
+		"secondary": "secondary",
+		"primary-db-server": "[format('qtdbsrv{0}{1}',variables('primary'), variables('randomValue'))]",
+		"primary-db": "[format('qtdb{0}',variables('primary'))]",
+		"secondary-db-server": "[format('qtdbsrv{0}{1}',variables('secondary'), variables('randomValue'))]",
+		"secondary-db": "[format('qtdb{0}',variables('secondary'))]"
+
+
+
 	},
 	"resources": [
 		{
@@ -85,7 +108,7 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks',variables('primary-vnet-name'))]"
 			]
-			
+
 		},
 		{
 			"type": "Microsoft.Network/virtualNetworks",
@@ -114,7 +137,99 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Network/virtualNetworks',variables('secondary-vnet-name'))]"
 			]
-			
+
+		},
+		{
+			"name": "[variables('primary-db-server')]",
+			"type": "Microsoft.Sql/servers",
+			"apiVersion": "2014-04-01",
+			"location": "[parameters('primaryregion')]",
+			"tags": {
+				"displayName": "primary-sql-server"
+			},
+			"properties": {
+				"administratorLogin": "[parameters('dbusername')]",
+				"administratorLoginPassword": "[parameters('dbpassword')]"
+			},
+			"resources": [
+				{
+					"type": "firewallRules",
+					"apiVersion": "2014-04-01",
+					"dependsOn": [
+						"[resourceId('Microsoft.Sql/servers', variables('primary-db-server'))]"
+					],
+					"location": "[parameters('primaryregion')]",
+					"name": "PrimaryServerFirewall",
+					"properties": {
+						"startIpAddress": "0.0.0.0",
+						"endIpAddress": "255.255.255.255"
+					}
+				}
+			]
+		},
+		{
+			"name": "[format('{0}/{1}',variables('primary-db-server'),variables('primary-db'))]",
+			"type": "Microsoft.Sql/servers/databases",
+			"apiVersion": "2014-04-01",
+			"location": "[parameters('primaryregion')]",
+			"tags": {
+				"displayName": "primarysqldb"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Sql/servers', variables('primary-db-server'))]"
+			],
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"edition": "Basic",
+				"maxSizeBytes": "1073741824",
+				"requestedServiceObjectiveName": "Basic"
+			}
+		},
+		{
+			"name": "[variables('secondary-db-server')]",
+			"type": "Microsoft.Sql/servers",
+			"apiVersion": "2014-04-01",
+			"location": "[parameters('secondaryregion')]",
+			"tags": {
+				"displayName": "secondary-sql-server"
+			},
+			"properties": {
+				"administratorLogin": "[parameters('dbusername')]",
+				"administratorLoginPassword": "[parameters('dbpassword')]"
+			},
+			"resources": [
+				{
+					"type": "firewallRules",
+					"apiVersion": "2014-04-01",
+					"dependsOn": [
+						"[resourceId('Microsoft.Sql/servers', variables('secondary-db-server'))]"
+					],
+					"location": "[parameters('secondaryregion')]",
+					"name": "SecondaryServerFirewall",
+					"properties": {
+						"startIpAddress": "0.0.0.0",
+						"endIpAddress": "255.255.255.255"
+					}
+				}
+			]
+		},
+		{
+			"name": "[format('{0}/{1}',variables('secondary-db-server'),variables('secondary-db'))]",
+			"type": "Microsoft.Sql/servers/databases",
+			"apiVersion": "2014-04-01",
+			"location": "[parameters('secondaryregion')]",
+			"tags": {
+				"displayName": "secondarysqldb"
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Sql/servers', variables('secondary-db-server'))]"
+			],
+			"properties": {
+				"collation": "SQL_Latin1_General_CP1_CI_AS",
+				"edition": "Basic",
+				"maxSizeBytes": "1073741824",
+				"requestedServiceObjectiveName": "Basic"
+			}
 		}
 	]
 }
