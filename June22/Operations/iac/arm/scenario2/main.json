@@ -231,5 +231,15 @@
 				"requestedServiceObjectiveName": "Basic"
 			}
 		}
-	]
+	],
+	"outputs": {
+		"primary-db-server": {
+			"type": "string",
+			"value": "[reference(resourceId('Microsoft.Sql/servers',variables('primary-db-server'))).fullyQualifiedDomainName]"
+		},
+		"secondary-db-server": {
+			"type": "string",
+			"value": "[reference(resourceId('Microsoft.Sql/servers',variables('secondary-db-server'))).fullyQualifiedDomainName]"
+		}
+	}
 }
