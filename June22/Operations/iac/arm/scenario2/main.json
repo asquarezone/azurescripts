@@ -53,11 +53,15 @@
 		}
 
 	},
+	"variables": {
+		"primary-vnet-name": "ntier-primary-vnet",
+		"secondary-vnet-name": "ntier-secondary-vnet"
+	},
 	"resources": [
 		{
 			"type": "Microsoft.Network/virtualNetworks",
 			"apiVersion": "2020-11-01",
-			"name": "primaryvnet",
+			"name": "[variables('primary-vnet-name')]",
 			"location": "[parameters('primaryregion')]",
 			"properties": {
 				"addressSpace": {
@@ -68,7 +72,7 @@
 		{
 			"type": "Microsoft.Network/virtualNetworks/subnets",
 			"apiVersion": "2020-11-01",
-			"name": "[format('primaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
+			"name": "[format('{0}/{1}',variables('primary-vnet-name'),parameters('subnet-names')[copyIndex()])]",
 			"properties": {
 				"addressPrefix": "[format(parameters('primary-subnet-cidr-format'),copyIndex())]"
 			},
@@ -79,14 +83,14 @@
 
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks','primaryvnet')]"
+				"[resourceId('Microsoft.Network/virtualNetworks',variables('primary-vnet-name'))]"
 			]
 			
 		},
 		{
 			"type": "Microsoft.Network/virtualNetworks",
 			"apiVersion": "2020-11-01",
-			"name": "secondaryvnet",
+			"name": "[variables('secondary-vnet-name')]",
 			"location": "[parameters('secondaryregion')]",
 			"properties": {
 				"addressSpace": {
@@ -97,7 +101,7 @@
 		{
 			"type": "Microsoft.Network/virtualNetworks/subnets",
 			"apiVersion": "2020-11-01",
-			"name": "[format('secondaryvnet/{0}',parameters('subnet-names')[copyIndex()])]",
+			"name": "[format('{0}/{1}',variables('secondary-vnet-name'),parameters('subnet-names')[copyIndex()])]",
 			"properties": {
 				"addressPrefix": "[format(parameters('secondary-subnet-cidr-format'),copyIndex())]"
 			},
@@ -108,7 +112,7 @@
 
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/virtualNetworks','secondaryvnet')]"
+				"[resourceId('Microsoft.Network/virtualNetworks',variables('secondary-vnet-name'))]"
 			]
 			
 		}
