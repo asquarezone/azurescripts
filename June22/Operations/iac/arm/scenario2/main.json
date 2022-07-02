@@ -75,10 +75,11 @@
 		"primary-db-server": "[format('qtdbsrv{0}{1}',variables('primary'), variables('randomValue'))]",
 		"primary-db": "[format('qtdb{0}',variables('primary'))]",
 		"secondary-db-server": "[format('qtdbsrv{0}{1}',variables('secondary'), variables('randomValue'))]",
-		"secondary-db": "[format('qtdb{0}',variables('secondary'))]"
-
-
-
+		"secondary-db": "[format('qtdb{0}',variables('secondary'))]",
+		"app-port": "8080",
+		"ssh-port": "22",
+		"http-port": "80",
+		"https-port": "443"
 	},
 	"resources": [
 		{
@@ -230,7 +231,225 @@
 				"maxSizeBytes": "1073741824",
 				"requestedServiceObjectiveName": "Basic"
 			}
-		}
+		},
+		{
+			"name": "primaryappnsg",
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2020-11-01",
+			"location": "[parameters('primaryregion')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "appport",
+						"properties": {
+							"description": "description",
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "[variables('app-port')]",
+							"sourceAddressPrefix": "[parameters('primary-cidr')]",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 300,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "appsshport",
+						"properties": {
+							"description": "description",
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "[variables('app-port')]",
+							"sourceAddressPrefix": "[parameters('primary-cidr')]",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 310,
+							"direction": "Inbound"
+						}
+					}
+				]
+			}
+		},
+		{
+			"name": "secondaryappnsg",
+			"type": "Microsoft.Network/networkSecurityGroups",
+			"apiVersion": "2020-11-01",
+			"location": "[parameters('secondaryregion')]",
+			"properties": {
+				"securityRules": [
+					{
+						"name": "appsport",
+						"properties": {
+							"description": "description",
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "[variables('app-port')]",
+							"sourceAddressPrefix": "[parameters('secondary-cidr')]",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 300,
+							"direction": "Inbound"
+						}
+					},
+					{
+						"name": "appssshport",
+						"properties": {
+							"description": "description",
+							"protocol": "Tcp",
+							"sourcePortRange": "*",
+							"destinationPortRange": "[variables('app-port')]",
+							"sourceAddressPrefix": "[parameters('secondary-cidr')]",
+							"destinationAddressPrefix": "*",
+							"access": "Allow",
+							"priority": 310,
+							"direction": "Inbound"
+						}
+					}
+				]
+			}
+			
+		},
+		{
+            "name": "primaryappnic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('primaryregion')]",
+            "tags": {
+                "displayName": "primaryappnic"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('primary-vnet-name'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('primary-vnet-name'), 'app')]"
+                
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "primaryappconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('primary-vnet-name'), 'app')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups','primaryappnsg')]"
+                }
+            }
+        },
+		{
+            "name": "secondaryappnic",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('secondaryregion')]",
+            "tags": {
+                "displayName": "secondaryappnic"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('secondary-vnet-name'))]",
+				"[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('secondary-vnet-name'), 'app')]"
+                
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "secondaryappconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets',variables('secondary-vnet-name'), 'app')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups','secondaryappnsg')]"
+                }
+            }
+			
+        },
+		{
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "primaryappserver",
+            "location": "[parameters('primaryregion')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces','primaryappnic')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "qtappsrv",
+                    "adminPassword": "motherindia@123",
+                    "adminUsername": "qtdevops",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces','primaryappnic')]"
+            ]
+        },
+		{
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "secondaryappserver",
+            "location": "[parameters('secondaryregion')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces','secondaryappnic')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "qtappsrv",
+                    "adminPassword": "motherindia@123",
+                    "adminUsername": "qtdevops",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces','secondaryappnic')]"
+            ]
+        }
 	],
 	"outputs": {
 		"primary-db-server": {
