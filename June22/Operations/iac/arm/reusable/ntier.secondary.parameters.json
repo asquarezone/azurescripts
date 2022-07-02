@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "region": {
+            "value": "eastus"
+        },
+        "network_name": {
+            "value": "ntier-secondary"
+        },
+        "username": {
+            "value": "qtdevops"
+        },
+        "password": {
+            "value": "" // TODO: Fill in parameter value
+        },
+        "network-cidr": {
+            "value": "10.1.0.0/16"
+        },
+        "subnet-cidrs": {
+            "value": ["10.1.0.0/24", "10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
+        }
+    }
+}

@@ -1,0 +1,362 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "region": {
+            "type": "string",
+            "metadata": {
+                "description": "region for the deployment"
+            },
+            "defaultValue": "centralus"
+        },
+        "network_name": {
+            "type": "string",
+            "metadata": {
+                "description": "description"
+            },
+            "defaultValue": "ntier"
+        },
+        "username": {
+            "type": "string",
+            "metadata": {
+                "description": "username"
+            },
+            "defaultValue": "qtdevops"
+        },
+        "password": {
+            "type": "securestring",
+            "metadata": {
+                "description": "password"
+            }
+        },
+        "network-cidr": {
+            "type": "string",
+            "metadata": {
+                "description": "network cidr"
+            },
+            "defaultValue": "10.0.0.0/16"
+        },
+        "subnet-cidrs": {
+            "type": "array",
+            "metadata": {
+                "description": "subnet cidrs"
+            },
+            "defaultValue": ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+        }
+    },
+    "variables": {
+        "unique_name": "[uniqueString(resourceGroup().id)]",
+        "dbserver_name": "[format('qtdbsrv{0}',variables('unique_name'))]",
+        "appnsg": "[format('appnsg{0}',variables('unique_name'))]",
+        "appnic": "[format('appnic{0}',variables('unique_name'))]",
+        "webnsg": "[format('webnsg{0}',variables('unique_name'))]",
+        "webnic": "[format('webnic{0}',variables('unique_name'))]",
+        "webpublicip": "[format('webpublicip{0}',variables('unique_name'))]",
+        "appserver": "[format('qtappsrv{0}',variables('unique_name'))]",
+        "webserver": "[format('qtwebsrv{0}',variables('unique_name'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[parameters('network_name')]",
+            "location": "[parameters('region')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [ "[parameters('network-cidr')]" ]
+                },
+                "subnets": [
+                    {
+                        "name": "web",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet-cidrs')[0]]"
+                        }
+                    },
+                    {
+                        "name": "app",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet-cidrs')[1]]"
+                        }
+                    },
+                    {
+                        "name": "db",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet-cidrs')[2]]"
+                        }
+                    },
+                    {
+                        "name": "management",
+                        "properties": {
+                            "addressPrefix": "[parameters('subnet-cidrs')[3]]"
+                        }
+                    }
+                    
+
+                ]
+            }
+        },
+        {
+            "name": "[variables('dbserver_name')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2014-04-01",
+            "location": "[parameters('region')]",
+            "tags": {
+                "displayName": "[variables('dbserver_name')]"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('username')]",
+                "administratorLoginPassword": "[parameters('password')]"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2014-04-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Sql/servers', variables('dbserver_name'))]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "[format('openall{0}',variables('unique_name'))]",
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "255.255.255.255"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "[format('{0}/qtdb', variables('dbserver_name'))]",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2014-04-01",
+            "location": "[parameters('region')]",
+            "tags": {
+                "displayName": "qtdb"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers', variables('dbserver_name'))]"
+            ],
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "Basic",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "Basic"
+            }
+        },
+        {
+            "name": "[variables('appnsg')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('region')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "[format('openssh{0}',variables('unique_name'))]",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "[format('openapp{0}',variables('unique_name'))]",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8080",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 310,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('appnic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('region')]",
+            "tags": {
+                "displayName": "[variables('appnic')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('network_name'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[format('appip{0}',variables('unique_name'))]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets',parameters('network_name'), 'app')]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('appnsg'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('webpublicip')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('region')]",
+            "tags": {
+                "displayName": "[variables('webpublicip')]"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "qtwebsrv"
+                }
+            }
+        },
+        {
+            "name": "[variables('webnsg')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('region')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "[format('nsgRule{0}',variables('unique_name'))]",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('webnic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2020-11-01",
+            "location": "[parameters('region')]",
+            "tags": {
+                "displayName": "[variables('webnic')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('network_name'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "[format('webipconfig{0}',variables('unique_name'))]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('network_name'), 'web')]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('webpublicip'))]"
+                            }
+                        }
+                    }
+                ], 
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('webnsg'))]"
+                }
+            }
+
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[variables('appserver')]",
+            "location": "[parameters('region')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('appnic'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('appserver')]",
+                    "adminPassword": "[parameters('password')]",
+                    "adminUsername": "[parameters('username')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces',variables('appnic'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2021-11-01",
+            "name": "[variables('webserver')]",
+            "location": "[parameters('region')]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1s"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces','webnic')]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "[variables('webserver')]",
+                    "adminPassword": "[parameters('password')]",
+                    "adminUsername": "[parameters('username')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "OpenLogic",
+                        "offer": "CentOS",
+                        "sku": "7.4",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces',variables('webnic'))]"
+            ]
+        }
+    ]
+}
