@@ -1,0 +1,12 @@
+az group create --location 'eastus' --resource-group  'activity1'
+az network vnet create --name 'fromcli' --resource-group 'activity1' `
+    --address-prefixes '192.168.0.0/23' --location 'eastus' 
+
+az network vnet subnet create --name 'subnet1' --resource-group 'activity1' `
+    --vnet-name 'fromcli' --address-prefixes '192.168.0.0/24'
+
+
+az network vnet subnet create --name 'subnet2' --resource-group 'activity1' `
+    --vnet-name 'fromcli' --address-prefixes '192.168.1.0/24'
+
+
