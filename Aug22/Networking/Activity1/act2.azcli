@@ -1,0 +1,14 @@
+az network vnet create --name 'ntier' --resource-group 'activity1' `
+    --address-prefixes '192.168.0.0/22' --location 'eastus'
+
+az network vnet subnet create --name 'web' --resource-group 'activity1' `
+    --vnet-name 'ntier' --address-prefixes '192.168.0.0/24'
+
+az network vnet subnet create --name 'app' --resource-group 'activity1' `
+    --vnet-name 'ntier' --address-prefixes '192.168.1.0/24'
+
+az network vnet subnet create --name 'cache' --resource-group 'activity1' `
+    --vnet-name 'ntier' --address-prefixes '192.168.2.0/24'
+
+az network vnet subnet create --name 'db' --resource-group 'activity1' `
+    --vnet-name 'ntier' --address-prefixes '192.168.3.0/24'
