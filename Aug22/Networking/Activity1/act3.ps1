@@ -84,3 +84,17 @@ Set-AzVirtualNetworkSubnetConfig `
     -AddressPrefix '10.101.3.0/24'
 
 $vnetSecondary | Set-AzVirtualNetwork
+
+
+# Creating a Peering connection from primary to secondary
+
+Add-AzVirtualNetworkPeering -Name 'primarytosecondary' `
+    -VirtualNetwork $vnetPrimary `
+    -RemoteVirtualNetworkId $vnetSecondary.Id
+
+#  Create a Peering connection from secondary to primary
+
+Add-AzVirtualNetworkPeering -Name 'secondarytoprimary' `
+    -VirtualNetwork $vnetSecondary `
+    -RemoteVirtualNetworkId $vnetPrimary.Id
+    
