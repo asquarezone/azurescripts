@@ -31,3 +31,56 @@ $vnetSecondary = New-AzVirtualNetwork `
                     -Location $location2 `
                     -Subnet $web2,$app2,$cache2,$db2,$mgmt2 `
                     -AddressPrefix $addressSpaceLocation2 
+
+# Create a NSG with default security rules
+
+$internalNsg = New-AzNetworkSecurityGroup `
+                -Name 'internalprimary' `
+                -Location $location1 `
+                -ResourceGroupName $resourceGroup.ResourceGroupName
+
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'app' `
+    -NetworkSecurityGroupId $internalNsg.Id `
+    -VirtualNetwork $vnetPrimary `
+    -AddressPrefix '10.100.1.0/24'
+
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'cache' `
+    -NetworkSecurityGroupId $internalNsg.Id `
+    -VirtualNetwork $vnetPrimary `
+    -AddressPrefix '10.100.2.0/24'
+
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'db' `
+    -NetworkSecurityGroupId $internalNsg.Id `
+    -VirtualNetwork $vnetPrimary `
+    -AddressPrefix '10.100.3.0/24'
+
+$vnetPrimary | Set-AzVirtualNetwork
+
+$internalNsgSecondary = New-AzNetworkSecurityGroup `
+                        -Name 'internalsecondary' `
+                        -Location $location2 `
+                        -ResourceGroupName $resourceGroup.ResourceGroupName
+        
+                        
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'app' `
+    -NetworkSecurityGroupId $internalNsgSecondary.Id `
+    -VirtualNetwork $vnetSecondary `
+    -AddressPrefix '10.101.1.0/24'
+
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'cache' `
+    -NetworkSecurityGroupId $internalNsgSecondary.Id `
+    -VirtualNetwork $vnetSecondary `
+    -AddressPrefix '10.101.2.0/24'
+
+Set-AzVirtualNetworkSubnetConfig `
+    -Name 'db' `
+    -NetworkSecurityGroupId $internalNsgSecondary.Id `
+    -VirtualNetwork $vnetSecondary `
+    -AddressPrefix '10.101.3.0/24'
+
+$vnetSecondary | Set-AzVirtualNetwork
