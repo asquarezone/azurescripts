@@ -1,0 +1,15 @@
+{
+    "properties": {
+        "roleName": "QT policy 4",
+        "description": "Policy 4",
+        "assignableScopes": [],
+        "permissions": [
+            {
+                "actions": ["*"],
+                "notActions": ["Microsoft.Compute/virtualMachines/deallocate/action"],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
