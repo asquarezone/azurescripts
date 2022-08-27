@@ -1,0 +1,32 @@
+{
+    "properties": {
+        "roleName": "qt policy 5",
+        "description": "learning",
+        "assignableScopes": [ "/" ],
+        "permissions": [
+            {
+                "actions": [
+                    "*"
+                ],
+                "notActions": [
+                    "Microsoft.Authorization/*/Delete",
+                    "Microsoft.Authorization/*/Write",
+                    "Microsoft.Authorization/elevateAccess/Action",
+                    "Microsoft.Blueprint/blueprintAssignments/write",
+                    "Microsoft.Blueprint/blueprintAssignments/delete",
+                    "Microsoft.Compute/galleries/share/action",
+                    "Microsoft.Compute/virtualMachines/delete",
+                    "Microsoft.Storage/storageAccounts/delete",
+                    "Microsoft.Compute/disks/delete",
+                    "Microsoft.Kubernetes/connectedClusters/Delete",
+                    "Microsoft.Sql/managedInstances/databases/delete",
+                    "Microsoft.Sql/servers/delete",
+                    "Microsoft.Sql/servers/databases/delete"
+
+                ],
+                "dataActions": [],
+                "notDataActions": []
+            }
+        ]
+    }
+}
