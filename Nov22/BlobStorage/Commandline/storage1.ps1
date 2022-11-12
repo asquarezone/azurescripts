@@ -42,3 +42,8 @@ $Blob2HT = @{
 }
 
 Set-AzStorageBlobContent @Blob2HT
+$storageaccountname = $mystorageaccount.StorageAccountName
+$images_container_name = $images_container.Name
+$sourceDir = "C:\Classroomnotes\Azure\Apr20\Datbases\Images"
+$endpoint = "https://$storageaccountname.blob.core.windows.net/$images_container_name"
+azcopy copy $sourceDir $endpoint
