@@ -1,0 +1,11 @@
+az resource list --resource-group workshop --output tsv --query "[].name"
+
+az tags create --resource-id "/subscriptions/20424120-c2c1-4a08-8563-c7f7b6401ed3/resourceGroups/WORKSHOP/providers/Microsoft.Compute/disks/qtlinux_OsDisk_1_39e85d4bdb214c24bf1c8685d848e672" --tags "Environment=Dev" "Project=azurelearning" "Release=v1.1" "Team=qtazure"
+
+
+az group list --query "[0]"
+
+az tag create --resource-id "/subscriptions/20424120-c2c1-4a08-8563-c7f7b6401ed3/resourceGroups/cloud-shell-storage-centralindia" --tags "Environment=Dev"
+
+
+az resource list --resource-type "Microsoft.Compute/VirtualMachines" --tags "Environment=Dev"
