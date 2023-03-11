@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# create a resource group
+az group create --name 'fromcli' --location 'eastus'
