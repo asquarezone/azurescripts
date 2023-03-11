@@ -12,4 +12,6 @@ az vm create --name 'qttest' `
     --location 'eastus' `
     --public-ip-sku Standard
 
+az vm open-port --port 80 --resource-group 'fromcli' --name 'qttest'
+
 
