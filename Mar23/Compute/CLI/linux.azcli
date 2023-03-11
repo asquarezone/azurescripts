@@ -2,3 +2,14 @@
 
 # create a resource group
 az group create --name 'fromcli' --location 'eastus'
+
+az vm create --name 'qttest' `
+    --resource-group 'fromcli' `
+    --admin-password 'motherindia@123' `
+    --admin-username 'qtdevops' `
+    --authentication-type 'password' `
+    --image 'Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest' `
+    --location 'eastus' `
+    --public-ip-sku Standard
+
+
