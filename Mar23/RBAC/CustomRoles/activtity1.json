@@ -1,0 +1,15 @@
+{
+    "Name": "activity1mar23",
+    "IsCustom": true,
+    "Description": "Custom Role to View, Create and Delete Virtual Machines and App Service",
+    "Actions": [
+        "Microsoft.Compute/virtualMachines/read",
+        "Microsoft.Compute/virtualMachines/write",
+        "Microsoft.Compute/virtualMachines/delete",
+        "Microsoft.Web/serverfarms/Read",
+        "Microsoft.Web/serverfarms/Write",
+        "Microsoft.Web/serverfarms/Delete"
+    ],
+    "AssignableScopes": ["/"]
+
+}
