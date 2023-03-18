@@ -1,0 +1,11 @@
+{
+    "Name": "actvity2march23",
+    "IsCustom": "true",
+    "Description": "custom role to do every thing on Virtual Machine and Read Azure SQL",
+    "Actions": [
+        "Microsoft.Compute/*",
+        "Microsoft.Sql/*/read"
+
+    ],
+    "AssignableScopes": ["/"]
+}
