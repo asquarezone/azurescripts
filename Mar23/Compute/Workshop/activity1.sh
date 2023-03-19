@@ -8,7 +8,7 @@ if [[ -z "$tag_name" ]]; then
 fi
 
 if [[ -z "$tag_value" ]]; then
-    tag_name='Dev'
+    tag_value='Dev'
 fi
 
 

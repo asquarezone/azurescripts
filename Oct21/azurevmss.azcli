@@ -2,13 +2,22 @@
 
 # Create a resource group
 
-az group create --name 'vmssdemo' --location 'eastus'
+az group create --name 'vmssdemo1' --location 'eastus'
 
 # Create a VMSS
 az vmss create `
-  --name 'myvmss' --resource-group 'vmssdemo' --admin-username 'qtdevops' `
+  --name 'myvmss' --resource-group 'vmssdemo1' --admin-username 'qtdevops' `
   --admin-password 'learning@123' --authentication-type 'password' `
   --image 'UbuntuLTS' --instance-count 2 `
-  --vm-sku 'Standard_B1s' --zones 1 2 3
+  --vm-sku 'Standard_B1s' --zones 1 2 3 `
+  --upgrade-policy-mode automatic `
+  ----public-ip-per-vm
+
 
 # install a sample application in the vmss
+# script for installing application https://raw.githubusercontent.com/asquarezone/azurescripts/master/Oct21/installapache.sh
+
+az vmss extension set --vmss-name 'myvmss' `
+    --name customScript --resource-group 'vmssdemo1' `
+    --version 2.0 --publisher Microsoft.Azure.Extensions `
+    --settings "{'commandToExecute':'sudo apt update && sudo apt install apache2 -y'}"
