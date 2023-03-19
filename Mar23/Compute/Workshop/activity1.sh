@@ -1,15 +1,15 @@
 #!/bin/bash
 
-tag_name=$1
-tag_value=$2
+function assign_default_value_if_empty() {
+    value=$1
+    if [[ -z $value ]]; then
+        value=$2
+    fi
+    echo $value
+}
 
-if [[ -z "$tag_name" ]]; then
-    tag_name='Env'
-fi
-
-if [[ -z "$tag_value" ]]; then
-    tag_value='Dev'
-fi
+tag_name=$(assign_default_value_if_empty $1 'Env')
+tag_value=$(assign_default_value_if_empty $2 'Dev')
 
 
 # Get the vm ids of the machines with tag Env and value Dev
