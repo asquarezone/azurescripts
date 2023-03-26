@@ -8,6 +8,14 @@
                 "description": "addressSpace of vnet"
             },
             "defaultValue": "192.168.0.0/16"
+        },
+        "dbAddressSpace": {
+            "type": "string",
+            "metadata": {
+                "description": "address Space of db subnet"
+            },
+            "defaultValue": "192.168.1.0/24"
+
         }
 
     },
@@ -26,6 +34,17 @@
                 "Env": "Dev",
                 "CreatedBy": "ARM Templates"
             }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2022-07-01",
+            "name": "ntier-vnet/db",
+            "properties": {
+                "addressPrefix": "[parameters('dbAddressSpace')]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', 'ntier-vnet')]"
+            ]
         }
     ]
 }
