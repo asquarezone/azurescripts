@@ -9,23 +9,20 @@
             },
             "defaultValue": "192.168.0.0/16"
         },
-        "dbAddressSpace": {
-            "type": "string",
+        "subnetNames": {
+            "type": "array",
             "metadata": {
-                "description": "address Space of db subnet"
+                "description": "names of the subnets"
             },
-            "defaultValue": "192.168.1.0/24"
-
+            "defaultValue": ["web", "app", "db"]
         },
-        "appAddressSpace": {
-            "type": "string",
+        "subnetAddressSpace": {
+            "type": "array",
             "metadata": {
-                "description": "address Space of app subnet"
-            },
-            "defaultValue": "192.168.0.0/24"
-
+                "description": "address Spaces of the subnets"
+            }, 
+            "defaultValue": ["192.168.0.0/24", "192.168.1.0/24", "192.168.2.0/24"]
         }
-
     },
     "variables": {
         "vnet-name": "ntier-vnet"
@@ -49,24 +46,19 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2022-07-01",
-            "name": "[concat(variables('vnet-name'),'/','db')]",
+            "name": "[concat(variables('vnet-name'),'/',parameters('subnetNames')[copyIndex()])]",
             "properties": {
-                "addressPrefix": "[parameters('dbAddressSpace')]"
+                "addressPrefix": "[parameters('subnetAddressSpace')[copyIndex()]]"
+            },
+            "copy": {
+                "name": "subnetcopy",
+                "count": "[length(parameters('subnetNames'))]",
+                "mode": "Serial"
             },
             "dependsOn": [
                 "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]"
             ]
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2022-07-01",
-            "name": "[concat(variables('vnet-name'),'/','app')]",
-            "properties": {
-                "addressPrefix": "[parameters('appAddressSpace')]"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet-name'))]"
-            ]
+
         }
     ]
 }
