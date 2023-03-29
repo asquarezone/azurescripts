@@ -27,11 +27,14 @@
         }
 
     },
+    "variables": {
+        "vnet-name": "ntier-vnet"
+    },
     "resources": [
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2022-07-01",
-            "name": "ntier-vnet",
+            "name": "[variables('vnet-name')]",
             "location": "[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
@@ -46,23 +49,23 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2022-07-01",
-            "name": "ntier-vnet/db",
+            "name": "[concat(variables('vnet-name'),'/','db')]",
             "properties": {
                 "addressPrefix": "[parameters('dbAddressSpace')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', 'ntier-vnet')]"
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]"
             ]
         },
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2022-07-01",
-            "name": "ntier-vnet/app",
+            "name": "[concat(variables('vnet-name'),'/','app')]",
             "properties": {
                 "addressPrefix": "[parameters('appAddressSpace')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', 'ntier-vnet')]"
+                "[resourceId('Microsoft.Network/virtualNetworks',variables('vnet-name'))]"
             ]
         }
     ]
