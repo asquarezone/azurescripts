@@ -22,10 +22,27 @@
                 "description": "address Spaces of the subnets"
             }, 
             "defaultValue": ["192.168.0.0/24", "192.168.1.0/24", "192.168.2.0/24"]
+        },
+        "dbusername": {
+            "type": "string",
+            "metadata": {
+                "description": "username for database"
+            },
+            "defaultValue": "admin"
+        },
+        "dbpassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "password for database"
+            }
         }
     },
     "variables": {
-        "vnet-name": "ntier-vnet"
+        "vnet-name": "ntier-vnet",
+        "server-name": "qtntiersrv",
+        "db-name": "employees",
+        "sqlserver-id": "[resourceId('Microsoft.Sql/servers', variables('server-name'))]",
+        "vnet-id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]"
     },
     "resources": [
         {
@@ -56,9 +73,59 @@
                 "mode": "Serial"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]"
+                "[variables('vnet-id')]"
             ]
 
+        },
+        {
+            "name": "[variables('server-name')]",
+            "type": "Microsoft.Sql/servers",
+            "apiVersion": "2021-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('server-name')]"
+            },
+            "properties": {
+                "administratorLogin": "[parameters('dbusername')]",
+                "administratorLoginPassword": "[parameters('dbpassword')]"
+            },
+            "resources": [
+                {
+                    "type": "firewallRules",
+                    "apiVersion": "2021-11-01",
+                    "dependsOn": [
+                        "[variables('sqlserver-id')]"
+                    ],
+                    "location": "[resourceGroup().location]",
+                    "name": "AllowAllWindowsAzureIps",
+                    "properties": {
+                        "startIpAddress": "0.0.0.0",
+                        "endIpAddress": "0.0.0.0"
+                    }
+                }
+            ],
+            "dependsOn": [
+                "[variables('vnet-id')]"
+            ]
+        },
+        {
+            "name": "[concat(variables('server-name'),'/',variables('db-name'))]",
+            "type": "Microsoft.Sql/servers/databases",
+            "apiVersion": "2021-11-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('db-name')]"
+            },
+            "dependsOn": [
+                "[variables('sqlserver-id')]"
+            ],
+            "properties": {
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "edition": "Basic",
+                "requestedServiceObjectiveName": "Basic"
+            }
         }
+        
+    
     ]
 }
