@@ -35,6 +35,13 @@
             "metadata": {
                 "description": "password for database"
             }
+        },
+        "websubnetname": {
+            "type": "string",
+            "metadata": {
+                "description": "name of the subnet in which you want to create vm"
+            },
+            "defaultValue": "web"
         }
     },
     "variables": {
@@ -42,7 +49,10 @@
         "server-name": "qtntiersrv",
         "db-name": "employees",
         "sqlserver-id": "[resourceId('Microsoft.Sql/servers', variables('server-name'))]",
-        "vnet-id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]"
+        "vnet-id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]",
+        "nsg-name": "webnsg",
+        "nic-name": "webnic"
+
     },
     "resources": [
         {
@@ -124,8 +134,70 @@
                 "edition": "Basic",
                 "requestedServiceObjectiveName": "Basic"
             }
+        },
+        {
+            "name": "[variables('nsg-name')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2022-09-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "ssh",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "http",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1010,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[variables('nic-name')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2022-09-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "[variables('nic-name')]"
+            },
+            "dependsOn": [
+                "[variables('vnet-id')]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('subnetNames')[0])]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('websubnetname'))]"
+                            }
+                        }
+                    }
+                ]
+            }
         }
-        
-    
     ]
 }
