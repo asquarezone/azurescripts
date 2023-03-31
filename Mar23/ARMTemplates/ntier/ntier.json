@@ -14,14 +14,14 @@
             "metadata": {
                 "description": "names of the subnets"
             },
-            "defaultValue": ["web", "app", "db"]
+            "defaultValue": [ "web", "app", "db" ]
         },
         "subnetAddressSpace": {
             "type": "array",
             "metadata": {
                 "description": "address Spaces of the subnets"
-            }, 
-            "defaultValue": ["192.168.0.0/24", "192.168.1.0/24", "192.168.2.0/24"]
+            },
+            "defaultValue": [ "192.168.0.0/24", "192.168.1.0/24", "192.168.2.0/24" ]
         },
         "dbusername": {
             "type": "string",
@@ -183,8 +183,7 @@
                 "displayName": "[variables('nic-name')]"
             },
             "dependsOn": [
-                "[variables('vnet-id')]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('subnetNames')[0])]",
+                "[variables('vnet-id')]",                
                 "[resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))]",
                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
 
@@ -201,7 +200,7 @@
                             "publicIPAddress": {
                                 "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))]"
                             }
-                            
+
                         }
                     }
                 ],
@@ -219,8 +218,50 @@
                 "displayName": "web ip address"
             },
             "properties": {
-                "publicIPAllocationMethod": "Dynamic"
-                
+                "publicIPAllocationMethod": "Static"
+
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2022-11-01",
+            "name": "webvm",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "Env": "dev",
+                "CreatedBy": "ARM"
+            },
+            "properties": {
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nic-name'))]"
+                        }
+                    ]
+                },
+                "osProfile": {
+                    "computerName": "webvm",
+                    "adminPassword": "[parameters('dbpassword')]",
+                    "adminUsername": "[parameters('dbusername')]",
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": false
+
+                    }
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "0001-com-ubuntu-server-jammy",
+                        "sku": "22_04-lts-gen2",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "createOption": "fromImage"
+                    }
+                },
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                }
             }
         }
     ]
