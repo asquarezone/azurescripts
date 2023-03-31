@@ -51,7 +51,8 @@
         "sqlserver-id": "[resourceId('Microsoft.Sql/servers', variables('server-name'))]",
         "vnet-id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet-name'))]",
         "nsg-name": "webnsg",
-        "nic-name": "webnic"
+        "nic-name": "webnic",
+        "pip-name": "webip"
 
     },
     "resources": [
@@ -183,7 +184,10 @@
             },
             "dependsOn": [
                 "[variables('vnet-id')]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('subnetNames')[0])]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('subnetNames')[0])]",
+                "[resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+
             ],
             "properties": {
                 "ipConfigurations": [
@@ -193,10 +197,30 @@
                             "privateIPAllocationMethod": "Dynamic",
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet-name'), parameters('websubnetname'))]"
+                            },
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))]"
                             }
+                            
                         }
                     }
-                ]
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg-name'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pip-name')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2022-09-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "web ip address"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+                
             }
         }
     ]
