@@ -42,6 +42,13 @@
                 "description": "name of the subnet in which you want to create vm"
             },
             "defaultValue": "web"
+        },
+        "installscript": {
+            "type": "array",
+            "metadata": {
+                "description": "script"
+            },
+            "defaultValue": ["#!/bin/bash", "sudo apt update", "sudo apt install apache2 -y"]
         }
     },
     "variables": {
@@ -231,6 +238,12 @@
                 "Env": "dev",
                 "CreatedBy": "ARM"
             },
+            "dependsOn":[
+                "[resourceId('Microsoft.Network/networkInterfaces',variables('nic-name'))]",
+                "[variables('vnet-id')]",
+                "[resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsg-name'))]"
+            ],
             "properties": {
                 "networkProfile": {
                     "networkInterfaces": [
@@ -261,8 +274,15 @@
                 },
                 "hardwareProfile": {
                     "vmSize": "Standard_B1ms"
-                }
+                },
+                "userData": "[base64(join(parameters('installscript'),'\n'))]"
             }
         }
-    ]
+    ],
+    "outputs":{
+        "webip": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses',variables('pip-name'))).ipAddress]"
+        }
+    }
 }
