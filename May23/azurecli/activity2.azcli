@@ -30,4 +30,9 @@ az sql db create `
     --edition 'Basic' `
     --sample-name 'AdventureWorksLT'
     
+## Get all sql servers in resource group
+ az sql server list --resource-group 'fromcli' --query "[0].fullyQualifiedDomainName" --output tsv
 
+ ## Get all databases 
+ az sql db list --resource-group 'fromcli' --server 'qtactivityserver'
+ 

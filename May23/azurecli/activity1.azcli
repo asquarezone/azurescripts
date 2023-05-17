@@ -1,0 +1,5 @@
+#!/bin/bash
+
+az group create --location 'eastus' --name 'hellosqlfromcli'
+
+az group exists --name 'hellosqlfromcli'
