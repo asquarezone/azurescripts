@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# create a resource group
+az group create --location 'eastus' --name 'fromcli'
+
+# Create a server
+az sql server create `
+    --name 'qtactivityserver' `
+    --location 'eastus' `
+    --resource-group 'fromcli' `
+    --admin-user 'qtdevops' `
+    --admin-password 'motherindia@123' `
+    --enable-public-network true --identity-type UserAssigned
+
+# Create a firewall rule (openall)
+az sql server firewall-rule create `
+    --name 'openall' `
+    --resource-group 'fromcli' `
+    --server 'qtactivityserver' `
+    --start-ip-address '0.0.0.0' `
+    --end-ip-address '255.255.255.255'
+
+# Create a database
+
+az sql db create `
+    --name 'employees' `
+    --resource-group 'fromcli' `
+    --server 'qtactivityserver' `
+    --compute-model 'Provisioned' `
+    --edition 'Basic' `
+    --sample-name 'AdventureWorksLT'
+    
+
