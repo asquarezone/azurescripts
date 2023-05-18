@@ -53,7 +53,7 @@ else
         --enable-public-network true --identity-type UserAssigned
 fi
 
-exit 0
+
 # Create a firewall rule (openall)
 az sql server firewall-rule create \
     --name 'openall' \
