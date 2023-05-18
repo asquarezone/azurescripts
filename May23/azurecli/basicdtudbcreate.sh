@@ -26,20 +26,34 @@ echo "Resource Group  ==> ${RESOURCE_GROUP}"
 echo "Server Name ==> ${SERVER_NAME}"
 echo "Database Name ==> ${DB_NAME}"
 
-# Create a resource group
-
-az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
-echo "Resource group ${RESOURCE_GROUP} created"
-# Create a server
-az sql server create \
-    --name  ${SERVER_NAME} \
-    --location ${LOCATION} \
-    --resource-group ${RESOURCE_GROUP} \
-    --admin-user 'qtdevops' \
-    --admin-password 'motherindia@123' \
-    --enable-public-network true --identity-type UserAssigned
+# Create a resource group if it doesnot exists
+GROUP_EXISTS=$(az group exists -n ${RESOURCE_GROUP})
+echo $GROUP_EXISTS
+if [[ $GROUP_EXISTS == 'true' ]]; then
+    echo "Group already exists"
+else
+    echo "Group doesnot exist need to create"
+    az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
+    echo "Resource group ${RESOURCE_GROUP} created"
+fi
 
 
+SERVER_EXISTS=$(az sql server list -g 'fromcli' --query "length([?name=='qtactivityscriptsrv'])")
+
+if [[ $SERVER_EXISTS == "1" ]]; then
+    echo "Server with ${SERVER_NAME} already exists"
+else
+    # Create a server
+    az sql server create \
+        --name  ${SERVER_NAME} \
+        --location ${LOCATION} \
+        --resource-group ${RESOURCE_GROUP} \
+        --admin-user 'qtdevops' \
+        --admin-password 'motherindia@123' \
+        --enable-public-network true --identity-type UserAssigned
+fi
+
+exit 0
 # Create a firewall rule (openall)
 az sql server firewall-rule create \
     --name 'openall' \
