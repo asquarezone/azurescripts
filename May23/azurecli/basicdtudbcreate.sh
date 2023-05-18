@@ -1,12 +1,23 @@
 #!/bin/bash
-LOCATION='eastus'
-RESOURCE_GROUP='fromcli'
-SERVER_NAME='qtactivityscriptsrv'
-DB_NAME='erpdb'
-COMPUTE_MODEL='Provisioned'
-EDITION='Basic'
-START_IP='0.0.0.0'
-END_IP='255.255.255.255'
+assign_default_if_empty() {
+    value=$1
+    default=$2
+    if [[ -z $value ]]; then
+        echo $default
+    else
+        echo $value
+    fi
+}
+
+
+LOCATION=$(assign_default_if_empty $1 'eastus')
+RESOURCE_GROUP=$(assign_default_if_empty $2 'fromcli')
+SERVER_NAME=$(assign_default_if_empty $3 'qtactivityscriptsrv')
+DB_NAME=$(assign_default_if_empty $4 'erpdb')
+COMPUTE_MODEL=$(assign_default_if_empty $5 'Provisioned')
+EDITION=$(assign_default_if_empty $6 'Basic')
+START_IP=$(assign_default_if_empty $7 '0.0.0.0')
+END_IP=$(assign_default_if_empty $8 '255.255.255.255')
 
 
 echo "Creating a azure sql database with following details"
