@@ -14,6 +14,7 @@ RESOURCE_GROUP=$(assign_default_if_empty $2 'mysqlrg')
 USER_NAME=$(assign_default_if_empty $3 'qtdevops')
 USER_PASSWORD=$(assign_default_if_empty $4 'qthoughtsys@123')
 SKU_NAME=$(assign_default_if_empty $5 'Standard_B1ms')
+
 az group create --name $RESOURCE_GROUP --location $LOCATION
 
 az mysql flexible-server create --location $LOCATION \
