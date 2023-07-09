@@ -1,0 +1,24 @@
+# Create a resource group
+az group create `
+    --location 'eastus' `
+    --name 'workshop' `
+    --tags Purpose=learning Environment=Dev
+
+# Create a virtual network with cidr range 10.0.0.0/16 with name 
+# ntier-primary with location east us
+az network vnet create `
+    --location 'eastus' `
+    --resource-group 'workshop' `
+    --address-prefixes '10.0.0.0/16' `
+    --name 'ntier-primary'
+
+
+# Add one subnet to ntier-primary called as app subnet with 
+# cidr range 10.0.0.0/24
+az network vnet subnet create `
+    --name 'app' `
+    --resource-group 'workshop' `
+    --vnet-name 'ntier-primary' `
+    --address-prefixes '10.0.0.0/24'
+
+ 
