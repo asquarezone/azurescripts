@@ -25,16 +25,27 @@ VM_SIZE="Standard_B1s"
 
 
 
-# Create Resource Group
-echo "Creating a resource group with name ${RESOURCE_GROUP_NAME} in location ${RESOURCE_GROUP_LOCATION}" 
-az group create \
-    --location $RESOURCE_GROUP_LOCATION \
-    --name $RESOURCE_GROUP_NAME
+if [ $(az group exists --name $RESOURCE_GROUP_NAME) = false ]; then 
+   # Create Resource Group
+    echo "Creating a resource group with name ${RESOURCE_GROUP_NAME} in location ${RESOURCE_GROUP_LOCATION}" 
+    az group create \
+        --location $RESOURCE_GROUP_LOCATION \
+        --name $RESOURCE_GROUP_NAME
+else
+   echo "$RESOURCE_GROUP_NAME already exists"
+fi
+
+
+if [ $(az network exists --name $resourceGroup) = false ]; then 
+   az group create --name $resourceGroup --location "$location" 
+else
+   echo $resourceGroup
+fi
 
 # Create a virtual network
 # Create a network 
 echo "Create a vnet with address ${VIRTUAL_NETWORK_ADDRESS} and name ${VIRTUAL_NETWORK_NAME}"
-az network vnet create \
+az network vnet list --output tsv | grep ${VIRTUAL_NETWORK_NAME} -q || az network vnet create \
     --name ${VIRTUAL_NETWORK_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --location $RESOURCE_GROUP_LOCATION \
@@ -43,14 +54,13 @@ az network vnet create \
 # todo: ensure option is present to create multiple subnets
 # Create a subnet
 echo "Create a subnet with address ${VIRTUAL_NETWORK_SUBNET_ADDRESS} and name ${VIRTUAL_NETWORK_SUBNET_NAME}"
-az network vnet subnet create \
+az network vnet subnet list --output tsv | grep ${VIRTUAL_NETWORK_SUBNET_NAME} -q ||az network vnet subnet create \
     --name ${VIRTUAL_NETWORK_SUBNET_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --vnet-name ${VIRTUAL_NETWORK_NAME} \
     --address-prefixes ${VIRTUAL_NETWORK_SUBNET_ADDRESS}
 
 # Create a network security group
-
 echo "Creating a nsg with name ${NSG_NAME}"
 az network nsg create \
     --name ${NSG_NAME} \
