@@ -36,11 +36,6 @@ else
 fi
 
 
-if [ $(az network exists --name $resourceGroup) = false ]; then 
-   az group create --name $resourceGroup --location "$location" 
-else
-   echo $resourceGroup
-fi
 
 # Create a virtual network
 # Create a network 
