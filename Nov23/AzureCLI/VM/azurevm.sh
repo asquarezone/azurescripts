@@ -1,27 +1,133 @@
 #!/bin/bash
 
+#./azurevm.sh --group "rg-name" --location "location"
 
+# --group
 RESOURCE_GROUP_NAME="fromcli"
+# --location
 RESOURCE_GROUP_LOCATION="eastus"
 
+# --vnet-name
 VIRTUAL_NETWORK_NAME="ntier"
+# --vnet-address
 VIRTUAL_NETWORK_ADDRESS="10.0.0.0/16"
 
+# --subnet-name
 VIRTUAL_NETWORK_SUBNET_NAME="web"
+# --subnet-address
 VIRTUAL_NETWORK_SUBNET_ADDRESS="10.0.0.0/24"
 
+# --nsg-name
 NSG_NAME="webnsg"
+# --pip-name
 PUBLIC_IP_NAME="webip"
+# --pip-sku
 PUBLIC_IP_SKU="Standard"
+# --pip-allocation
 PUBLIC_IP_ALLOCATION="Static"
 
+# --nic-name
 NIC_NAME="webnic"
 
+# --vm-name
 VM_NAME="web1vm"
+# --username
 VM_USERNAME="dell"
+# --password
 VM_PASSWORD="qualitythought@123"
+# --vmimage
 VM_IMAGE="Ubuntu2204"
+# --size
 VM_SIZE="Standard_B1s"
+
+# process all arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --group)
+            RESOURCE_GROUP_NAME=$2
+            shift
+            shift
+            ;;
+        --location)
+            RESOURCE_GROUP_LOCATION=$2
+            shift
+            shift
+            ;;
+        --vnet-name)
+            VIRTUAL_NETWORK_NAME=$2
+            shift
+            shift
+            ;;
+        --vnet-address)
+            VIRTUAL_NETWORK_ADDRESS=$2
+            shift
+            shift
+            ;;
+        --subnet-name)
+            VIRTUAL_NETWORK_SUBNET_NAME=$2
+            shift
+            shift
+            ;;
+        --subnet-address)
+            VIRTUAL_NETWORK_SUBNET_ADDRESS=$2
+            shift
+            shift
+            ;;
+        --nsg-name)
+            NSG_NAME=$2
+            shift
+            shift
+            ;;
+        --pip-name)
+            PUBLIC_IP_NAME=$2
+            shift
+            shift
+            ;;
+        --pip-sku)
+            PUBLIC_IP_SKU=$2
+            shift
+            shift
+            ;;
+        --pip-allocation)
+            PUBLIC_IP_ALLOCATION=$2
+            shift
+            shift
+            ;;
+        --nic-name)
+            NIC_NAME=$2
+            shift
+            shift
+            ;;
+        --vm-name)
+            VM_NAME=$2
+            shift
+            shift
+            ;;
+        --username)
+            VM_USERNAME=$2
+            shift
+            shift
+            ;;
+        --password)
+            VM_PASSWORD=$2
+            shift
+            shift
+            ;;
+        --vmimage)
+            VM_IMAGE=$2
+            shift
+            shift
+            ;;
+        --size)
+            VM_SIZE=$2
+            shift
+            shift
+            ;;
+        *)
+        echo azurevm.sh --group "rg-name" --location "location"
+        ;;
+    esac
+done
 
 
 
