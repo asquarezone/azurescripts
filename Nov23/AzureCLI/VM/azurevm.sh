@@ -64,7 +64,7 @@ az network nsg list --output tsv | grep ${NSG_NAME} -q || az network nsg create 
 
 # Create a rule to open 80 port to every one
 echo "Create a rule to open 80 port to every one to ${NSG_NAME}"
-az network nsg rule list --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q ||az network nsg rule create \
+az network nsg rule list -g ${RESOURCE_GROUP_NAME} --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q ||az network nsg rule create \
     --name "openhttp" \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --nsg-name ${NSG_NAME} \
@@ -79,7 +79,7 @@ az network nsg rule list --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} 
 
 # Create a rule to open 22 port to every one
 echo "Create a rule to open 22 port to every one to ${NSG_NAME}"
-az network nsg rule list --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q || az network nsg rule create \
+az network nsg rule list -g ${RESOURCE_GROUP_NAME} --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q || az network nsg rule create \
     --name "openssh" \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --nsg-name ${NSG_NAME} \
