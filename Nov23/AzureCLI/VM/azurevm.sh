@@ -49,7 +49,7 @@ az network vnet list --output tsv | grep ${VIRTUAL_NETWORK_NAME} -q || az networ
 # todo: ensure option is present to create multiple subnets
 # Create a subnet
 echo "Create a subnet with address ${VIRTUAL_NETWORK_SUBNET_ADDRESS} and name ${VIRTUAL_NETWORK_SUBNET_NAME}"
-az network vnet subnet list --output tsv | grep ${VIRTUAL_NETWORK_SUBNET_NAME} -q ||az network vnet subnet create \
+az network vnet subnet list -g ${RESOURCE_GROUP_NAME} --vnet-name ${VIRTUAL_NETWORK_NAME} --output tsv | grep ${VIRTUAL_NETWORK_SUBNET_NAME} -q || az network vnet subnet create \
     --name ${VIRTUAL_NETWORK_SUBNET_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --vnet-name ${VIRTUAL_NETWORK_NAME} \
@@ -57,14 +57,14 @@ az network vnet subnet list --output tsv | grep ${VIRTUAL_NETWORK_SUBNET_NAME} -
 
 # Create a network security group
 echo "Creating a nsg with name ${NSG_NAME}"
-az network nsg create \
+az network nsg list --output tsv | grep ${NSG_NAME} -q || az network nsg create \
     --name ${NSG_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --location $RESOURCE_GROUP_LOCATION 
 
 # Create a rule to open 80 port to every one
 echo "Create a rule to open 80 port to every one to ${NSG_NAME}"
-az network nsg rule create \
+az network nsg rule list --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q ||az network nsg rule create \
     --name "openhttp" \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --nsg-name ${NSG_NAME} \
@@ -79,7 +79,7 @@ az network nsg rule create \
 
 # Create a rule to open 22 port to every one
 echo "Create a rule to open 22 port to every one to ${NSG_NAME}"
-az network nsg rule create \
+az network nsg rule list --nsg-name ${NSG_NAME} --output tsv | grep ${NSG_NAME} -q || az network nsg rule create \
     --name "openssh" \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --nsg-name ${NSG_NAME} \
@@ -94,7 +94,7 @@ az network nsg rule create \
 
 # Create a public ip address
 echo "Creating public ip"
-az network public-ip create \
+az network public-ip list --output tsv | grep ${PUBLIC_IP_NAME} -q || az network public-ip create \
     --name ${PUBLIC_IP_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --location $RESOURCE_GROUP_LOCATION \
@@ -103,7 +103,7 @@ az network public-ip create \
 
 # Create a network interface
 echo "Create a network interface with public ip"
-az network nic create \
+az network nic list --output tsv | grep ${NIC_NAME} -q || az network nic create \
     --name ${NIC_NAME} \
     --resource-group ${RESOURCE_GROUP_NAME} \
     --location $RESOURCE_GROUP_LOCATION \
@@ -115,7 +115,7 @@ az network nic create \
 
 # Create a vm
 echo "Creating vm with image ${VM_IMAGE} and size ${VM_SIZE}"
-az vm create \
+az vm list --output tsv | grep ${VM_NAME} -q || az vm create \
     --name ${VM_NAME} \
      --resource-group ${RESOURCE_GROUP_NAME} \
     --location $RESOURCE_GROUP_LOCATION \
